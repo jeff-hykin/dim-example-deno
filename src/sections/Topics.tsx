@@ -1,24 +1,28 @@
 // 1 + 2: subscribe to a topic and decode it, publish one (dimos.yaml: its zenoh-gateway range)
 import { useEffect, useRef, useState } from "react";
 import type { Publisher, ZenohGateway } from "../zenoh.ts";
-import { decodePose, encodeTwist, type Pose2d, topicKey } from "../topics.ts";
+import type { DimosMsgs, PoseStamped } from "../msgs.ts";
+import { encodeTwist, type Pose2d, topicPath, toPose2d } from "../topics.ts";
 import { Section } from "./Section.tsx";
 import styles from "./Topics.module.css";
 
-export function Odom({ zenoh }: { zenoh: ZenohGateway | null }) {
+type Props = { zenoh: ZenohGateway | null; msgs: DimosMsgs | null };
+
+export function Odom({ zenoh, msgs }: Props) {
   const [topic, setTopic] = useState("odom");
   const [pose, setPose] = useState<Pose2d | null>(null);
   const [hz, setHz] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!zenoh) {
+    if (!zenoh || !msgs) {
       return;
     }
     let count = 0;
     let since = performance.now();
-    const key = topicKey(topic, "geometry_msgs.PoseStamped");
+    const key = msgs.geometry_msgs.PoseStamped.zenohKey(topicPath(topic));
     const subscription = zenoh.subscribe(key, { delivery: "latest", maxHz: 20 }, (message) => {
-      setPose(decodePose(message.bytes));
+      // the type in the key picks the decoder
+      setPose(toPose2d(msgs.decodeMessage(message) as PoseStamped));
       count++;
       const now = performance.now();
       if (now - since > 1000) {
@@ -28,14 +32,14 @@ export function Odom({ zenoh }: { zenoh: ZenohGateway | null }) {
       }
     });
     return () => subscription.close();
-  }, [zenoh, topic]);
+  }, [zenoh, msgs, topic]);
 
   return (
     <Section
       title="1 · Subscribe to a topic and decode it"
       note={
         <>
-          zenoh-gateway → <code>dimos/{topic}/geometry_msgs.PoseStamped</code> → @dimos/msgs
+          zenoh-gateway → <code>dimos/{topic}/geometry_msgs.PoseStamped</code> → /dimos/msgs.js
         </>
       }
     >
@@ -50,32 +54,34 @@ export function Odom({ zenoh }: { zenoh: ZenohGateway | null }) {
   );
 }
 
-export function Drive({ zenoh }: { zenoh: ZenohGateway | null }) {
+export function Drive({ zenoh, msgs }: Props) {
   const [topic, setTopic] = useState("cmd_vel");
   const [sent, setSent] = useState(0);
   const publisher = useRef<Publisher | null>(null);
   const driving = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
-    if (!zenoh) {
+    if (!zenoh || !msgs) {
       return;
     }
-    const opened = zenoh.publisher(topicKey(topic, "geometry_msgs.Twist"), { delivery: "latest" });
+    const opened = zenoh.publisher(msgs.geometry_msgs.Twist.zenohKey(topicPath(topic)), {
+      delivery: "latest",
+    });
     // armed on the bridge: published for us if this page stops heartbeating
-    opened.setDeadman(encodeTwist(0, 0)).catch((error) => console.error(error));
+    opened.setDeadman(encodeTwist(msgs, 0, 0)).catch((error) => console.error(error));
     publisher.current = opened;
     return () => {
       clearInterval(driving.current);
       opened.close();
       publisher.current = null;
     };
-  }, [zenoh, topic]);
+  }, [zenoh, msgs, topic]);
 
   const hold = (forward: number, turn: number) => ({
     onPointerDown: () => {
       clearInterval(driving.current);
       driving.current = setInterval(() => {
-        publisher.current?.put(encodeTwist(forward, turn));
+        msgs && publisher.current?.put(encodeTwist(msgs, forward, turn));
         setSent((count) => count + 1);
       }, 100);
     },
@@ -87,7 +93,7 @@ export function Drive({ zenoh }: { zenoh: ZenohGateway | null }) {
     if (driving.current !== undefined) {
       clearInterval(driving.current);
       driving.current = undefined;
-      publisher.current?.put(encodeTwist(0, 0));
+      msgs && publisher.current?.put(encodeTwist(msgs, 0, 0));
     }
   }
 

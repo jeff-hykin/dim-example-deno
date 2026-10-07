@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { Point, Pose, PoseStamped } from "@dimos/msgs/geometry_msgs";
 import type { Message, ZenohGateway } from "./zenoh.ts";
 import { App } from "./App.tsx";
+import { msgsStandIn } from "./msgs_stand_in.ts";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -56,7 +57,11 @@ describe("App", () => {
   });
 
   async function render(zenoh: ZenohGateway) {
-    await act(() => root.render(<App zenoh={Promise.resolve(zenoh)} />));
+    await act(async () => {
+      root.render(<App zenoh={Promise.resolve(zenoh)} msgs={Promise.resolve(msgsStandIn)} />);
+      // the fetches and the zenoh/msgs promises settle inside act
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   }
 
   it("shows the gateway, the other app and its own server's answers", async () => {
@@ -72,12 +77,13 @@ describe("App", () => {
   it("subscribes to odom and shows the decoded pose", async () => {
     const { zenoh, subscribers } = fakeZenoh();
     await render(zenoh);
-    const deliver = subscribers.get("dimos/odom/geometry_msgs.PoseStamped");
+    const key = "dimos/odom/geometry_msgs.PoseStamped";
+    const deliver = subscribers.get(key);
     expect(deliver).toBeDefined();
     const bytes = new PoseStamped({
       pose: new Pose({ position: new Point({ x: 1.5, y: -2, z: 0 }) }),
     }).encode();
-    await act(() => deliver!({ key: "", kind: "put", bytes, timestamp: 0, seq: 0 }));
+    await act(() => deliver!({ key, kind: "put", bytes, timestamp: 0, seq: 0 }));
     expect(container.textContent).toContain("1.50");
     expect(container.textContent).toContain("-2.00");
   });

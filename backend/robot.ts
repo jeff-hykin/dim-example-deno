@@ -2,6 +2,7 @@
 // straight off dimos's zenoh network, keeps a running summary, and pushes it to this app's pages on
 // `<zenohPrefix>/frontend/odom` (the pages hear it through Desktop's zenoh-gateway, docs/events.md).
 import { Config, open, type Session } from "@robotics/zenoh-deno";
+// @dimos/msgs from JSR, not the gateway's /dimos/msgs.ts: the server runs only nix-vendored packages (--cached-only)
 import { PoseStamped } from "@dimos/msgs/geometry_msgs";
 
 export interface OdomSummary {
