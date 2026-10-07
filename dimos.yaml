@@ -1,5 +1,6 @@
 # dimos.yaml: what this app is, what it needs from Desktop/dimos/other apps, and what it offers.
-# The spec only ever grows (new optional keys); a Desktop ignores keys it doesn't know. See GUIDE.md.
+# The spec only ever grows (new optional keys); a Desktop ignores keys it doesn't know.
+# See https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md
 title: Example (Deno)
 # REQUIRED: the Desktop app API versions this app works with (2.1 = ignores unknown keys; never a breaking 3)
 dimos-desktop-api: ">=2.1 <3"

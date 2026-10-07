@@ -1,0 +1,30 @@
+.section {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.title {
+  margin: 0 0 4px;
+  font: 600 14px var(--sans);
+}
+
+.note {
+  margin: 0 0 8px;
+  color: var(--muted-fg);
+  font-size: 12.5px;
+}
+
+.output {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  padding: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--hair, var(--border));
+  border-radius: var(--radius-sm);
+  font: 12px var(--mono);
+  white-space: pre-wrap;
+}

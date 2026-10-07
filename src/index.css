@@ -1,0 +1,40 @@
+/* Page-wide defaults, from Desktop's theme tokens only (../../theme.css): right in every skin, light or dark. */
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  /* keep the end of the page above the shell's bottom bar */
+  padding: 16px 16px calc(16px + var(--dim-inset-bottom, 0px));
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 var(--sans);
+}
+
+code {
+  font-family: var(--mono);
+}
+
+button {
+  padding: 8px 14px;
+  background: var(--hover);
+  color: var(--fg);
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: var(--radius-sm);
+  font: 600 13px var(--sans);
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--primary);
+}
+
+input {
+  padding: 6px 8px;
+  background: var(--input-bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: 13px var(--mono);
+}

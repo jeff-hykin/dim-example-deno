@@ -1,0 +1,46 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  background: var(--input-bg);
+  border-radius: var(--radius-sm);
+}
+
+.label {
+  color: var(--muted-fg);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.value {
+  font: 600 18px var(--mono);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.drive {
+  touch-action: none;
+}
+
+.topic {
+  color: var(--muted-fg);
+  font-size: 12px;
+}
+
+.sent {
+  margin: 8px 0 0;
+  color: var(--muted-fg);
+  font-size: 12.5px;
+}

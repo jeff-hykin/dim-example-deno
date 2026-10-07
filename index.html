@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!--
+  A dimOS Desktop app page. Desktop serves it at /apps/<name>/, so every URL is RELATIVE:
+    ../../theme.css      Desktop's theme tokens and fonts (every skin)  -> /theme.css
+    ../../dimos/...      the dimos gateway's API                        -> /dimos/...
+    ../../api/...        Desktop's own API                              -> /api/...
+    ../../apps/<other>/  another app's public (agent:) endpoints        -> /apps/<other>/...
+    api/...              this app's own server (backend/main.ts)        -> /apps/<name>/api/...
+  Every one of them is declared in dimos.yaml; Desktop refuses an undeclared call (a 403 + a notification).
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dimOS example app</title>
+    <link rel="stylesheet" href="../../theme.css" vite-ignore />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
