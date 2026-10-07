@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Point, Pose, PoseStamped } from "@dimos/msgs/geometry_msgs";
-import type { Message, ZenohWeb } from "./zenoh.ts";
+import type { Message, ZenohGateway } from "./zenoh.ts";
 import { App } from "./App.tsx";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -11,7 +11,7 @@ import { App } from "./App.tsx";
 function fakeZenoh() {
   const subscribers = new Map<string, (message: Message) => void>();
   const puts: Uint8Array[] = [];
-  const zenoh: ZenohWeb = {
+  const zenoh: ZenohGateway = {
     subscribe: (key, _options, callback) => {
       subscribers.set(key, callback);
       return { close: () => subscribers.delete(key) };
@@ -55,7 +55,7 @@ describe("App", () => {
     vi.unstubAllGlobals();
   });
 
-  async function render(zenoh: ZenohWeb) {
+  async function render(zenoh: ZenohGateway) {
     await act(() => root.render(<App zenoh={Promise.resolve(zenoh)} />));
   }
 
@@ -77,7 +77,7 @@ describe("App", () => {
     const bytes = new PoseStamped({
       pose: new Pose({ position: new Point({ x: 1.5, y: -2, z: 0 }) }),
     }).encode();
-    await act(() => deliver!({ key: "", bytes, timestamp: 0, seq: 0 }));
+    await act(() => deliver!({ key: "", kind: "put", bytes, timestamp: 0, seq: 0 }));
     expect(container.textContent).toContain("1.50");
     expect(container.textContent).toContain("-2.00");
   });

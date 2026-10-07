@@ -1,11 +1,11 @@
-// 1 + 2: subscribe to a topic and decode it, publish one (dimos.yaml `zenoh-web:`)
+// 1 + 2: subscribe to a topic and decode it, publish one (dimos.yaml: its zenoh-gateway range)
 import { useEffect, useRef, useState } from "react";
-import type { Publisher, ZenohWeb } from "../zenoh.ts";
+import type { Publisher, ZenohGateway } from "../zenoh.ts";
 import { decodePose, encodeTwist, type Pose2d, topicKey } from "../topics.ts";
 import { Section } from "./Section.tsx";
 import styles from "./Topics.module.css";
 
-export function Odom({ zenoh }: { zenoh: ZenohWeb | null }) {
+export function Odom({ zenoh }: { zenoh: ZenohGateway | null }) {
   const [topic, setTopic] = useState("odom");
   const [pose, setPose] = useState<Pose2d | null>(null);
   const [hz, setHz] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export function Odom({ zenoh }: { zenoh: ZenohWeb | null }) {
       title="1 · Subscribe to a topic and decode it"
       note={
         <>
-          zenoh-web → <code>dimos/{topic}/geometry_msgs.PoseStamped</code> → @dimos/msgs
+          zenoh-gateway → <code>dimos/{topic}/geometry_msgs.PoseStamped</code> → @dimos/msgs
         </>
       }
     >
@@ -50,7 +50,7 @@ export function Odom({ zenoh }: { zenoh: ZenohWeb | null }) {
   );
 }
 
-export function Drive({ zenoh }: { zenoh: ZenohWeb | null }) {
+export function Drive({ zenoh }: { zenoh: ZenohGateway | null }) {
   const [topic, setTopic] = useState("cmd_vel");
   const [sent, setSent] = useState(0);
   const publisher = useRef<Publisher | null>(null);

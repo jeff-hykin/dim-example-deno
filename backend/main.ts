@@ -2,7 +2,7 @@
 // unix socket Desktop gives. No dependencies, so it runs offline (Desktop's nix build pins Deno itself).
 //
 // What Desktop passes: one env var, DIMOS_APP, a JSON object (Desktop's docs/apps.md, "dimos-app-server"):
-//   { version, name, socket, url, path, dataDir, desktopUrl, zenohWebUrl, zenohConnect, zenohNamespace, zenohPrefix,
+//   { version, name, socket, url, path, dataDir, desktopUrl, zenohGatewayUrl, zenohConnect, zenohNamespace, zenohPrefix,
 //     dimosDir, dimosPython, recordingsDir }
 // Requests arrive with the app's path (/apps/<name>) already removed: "/api/hello", "/", "/assets/index-….js".
 //

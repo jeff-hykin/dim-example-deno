@@ -4,13 +4,14 @@ A showcase [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) a
 Deno Server. Pick it when the app needs to read files, zero-copy zenoh topics, run parallel
 background jobs, etc. It shows how to:
 
-- subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, via zenoh-web +
-  [@dimos/msgs](https://jsr.io/@dimos/msgs))
+- subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, via
+  zenoh-gateway + [@dimos/msgs](https://jsr.io/@dimos/msgs))
 - publish one (`/cmd_vel`, a `geometry_msgs.Twist`, with a deadman)
 - call the dimos gateway (`GET /dimos/runs`) and another app's public endpoint
   (`GET /apps/dim-controller/api/status`)
 - post a Desktop notification and open another app
-- offer endpoints for the agent (`provides: endpoints:`) and private ones for its own page (`provides: private:`)
+- offer endpoints for the agent (`provides: endpoints:`) and private ones for its own page
+  (`provides: private:`)
 - look like Desktop in every skin (`src/theme.ts`: `useDesktopTheme()`)
 
 Read

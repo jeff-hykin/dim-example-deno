@@ -1,9 +1,12 @@
-// Types for the part of zenoh-web's browser client this page uses (the client is loaded by URL, see zenoh.ts).
-declare module "https://esm.sh/gh/jeff-hykin/zenoh-web@63b72dd/client/zenoh_web.ts" {
+// Types for the part of zenoh-gateway's browser client this page uses (the client is loaded by URL, see zenoh.ts).
+declare module "https://esm.sh/gh/jeff-hykin/zenoh-gateway@28c17f0/client/zenoh_gateway.ts" {
   export type Delivery = "latest" | "reliable";
   export interface Message {
     key: string;
+    kind: "put" | "delete";
     bytes: Uint8Array;
+    encoding?: string;
+    attachment?: Uint8Array;
     timestamp: number;
     seq: number;
   }
@@ -15,7 +18,7 @@ declare module "https://esm.sh/gh/jeff-hykin/zenoh-web@63b72dd/client/zenoh_web.
     setDeadman(value: Uint8Array): Promise<void>;
     close(): void;
   }
-  export interface ZenohWeb {
+  export interface ZenohGateway {
     subscribe(
       key: string,
       options: { delivery?: Delivery; maxHz?: number },
@@ -27,5 +30,5 @@ declare module "https://esm.sh/gh/jeff-hykin/zenoh-web@63b72dd/client/zenoh_web.
   export function connect(
     url: string,
     options?: { heartbeatHz?: number; heartbeatMisses?: number },
-  ): Promise<ZenohWeb>;
+  ): Promise<ZenohGateway>;
 }

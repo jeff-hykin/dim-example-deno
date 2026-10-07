@@ -17,7 +17,7 @@ export default defineConfig({
       "/shell": desktop,
       "/dimos": desktop,
       "/apps": desktop,
-      "/zenoh-web": { target: desktop, ws: true },
+      "/zenoh-gateway": { target: desktop, ws: true },
     },
   },
   build: {
