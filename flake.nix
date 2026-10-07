@@ -19,9 +19,9 @@
             # the module, so the server needs no network (JSR carries the module but not the libraries). To update: the
             # version and the tarball's hash (its line in the release's SHA256SUMS, as SRI), and backend/deno.json's jsr version.
             zenohDenoRelease = rec {
-                version = "0.1.1";
+                version = "0.1.2";
                 url = "https://github.com/jeff-hykin/zenoh-deno/releases/download/v${version}/zenoh-deno-v${version}.tar.gz";
-                hash = "sha256-fE4uNuTjVCHyEGK0QaRyPjLffl5LUpzB4nvNSmeXn3k=";
+                hash = "sha256-fmkmWoRVSJ/sgbIr98i+yV2lyZTPcaCh/FXkzv/sSE0=";
             };
         in {
             packages = forAll (pkgs:
@@ -63,7 +63,7 @@
                         dontFixup = true;
                         outputHashMode = "recursive";
                         outputHashAlgo = "sha256";
-                        outputHash = "sha256-NQX69ZWbMyp794nZJQwLVOy9iMb5P0W1lwaAZaIcl08=";
+                        outputHash = "sha256-ETEIfNndYne9wJyfDepVal42UpGyzItJ4uaO1Zi+mgE=";
                     };
                     zenohDeno = pkgs.runCommand "zenoh-deno-${zenohDenoRelease.version}" { } ''
                         mkdir $out

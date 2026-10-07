@@ -2,20 +2,20 @@
   "version": "5",
   "specifiers": {
     "jsr:@dimos/msgs@0.1.4": "0.1.4",
-    "jsr:@robotics/zenoh-deno@0.1.1": "0.1.1"
+    "jsr:@robotics/zenoh-deno@0.1.2": "0.1.2"
   },
   "jsr": {
     "@dimos/msgs@0.1.4": {
       "integrity": "564bc30b4bc41a562c296c257a15055283ca0cbd66d0627991ede5295832d0c4"
     },
-    "@robotics/zenoh-deno@0.1.1": {
-      "integrity": "35d73359e7dec4a6eb6ed2499af4d570476c0f81c2a592bd2997739be62b990b"
+    "@robotics/zenoh-deno@0.1.2": {
+      "integrity": "b84cfd9cbec9991606657bf633253bd1166636d41540ccf307460cac4117acd4"
     }
   },
   "workspace": {
     "dependencies": [
       "jsr:@dimos/msgs@0.1.4",
-      "jsr:@robotics/zenoh-deno@0.1.1"
+      "jsr:@robotics/zenoh-deno@0.1.2"
     ]
   }
 }
