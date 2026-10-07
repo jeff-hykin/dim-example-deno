@@ -21,7 +21,7 @@ button {
   background: var(--hover);
   color: var(--fg);
   border: 1px solid var(--border-strong, var(--border));
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   font: 600 13px var(--sans);
   cursor: pointer;
 }
@@ -35,6 +35,6 @@ input {
   background: var(--input-bg);
   color: var(--fg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   font: 13px var(--mono);
 }
