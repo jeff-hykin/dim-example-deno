@@ -21,7 +21,7 @@
             zenohDenoRelease = rec {
                 version = "0.1.1";
                 url = "https://github.com/jeff-hykin/zenoh-deno/releases/download/v${version}/zenoh-deno-v${version}.tar.gz";
-                hash = "sha256-6br9zNhv5geGXVgnyLEus+NujbDkZTqJfTukHct2eYo=";
+                hash = "sha256-fE4uNuTjVCHyEGK0QaRyPjLffl5LUpzB4nvNSmeXn3k=";
             };
         in {
             packages = forAll (pkgs:
