@@ -11,8 +11,8 @@
             nodeModulesHash = {
                 aarch64-darwin = "sha256-ifUNFnq/7voD1xgcIHnituBJUb47zwiQj3+4PFrwY6w=";
                 x86_64-darwin = "sha256-ZcmKHTuHq6igocKkxtEPKxiV36FT8sTDGca7uZ8fKvs=";
-                x86_64-linux = "";
-                aarch64-linux = "";
+                x86_64-linux = "sha256-HdjOTxYuOXY/V3lWtz1eSlls+/uhXUAEvXBpzG0vMGY=";
+                aarch64-linux = "sha256-tCuxiMf26LGn1z+53TRDF4Y0k/Jj71i6TdsWOfbREuY=";
             };
             denoEnv = "export HOME=$TMPDIR DENO_DIR=$TMPDIR/deno DENO_NO_UPDATE_CHECK=1 DENO_NO_PROMPT=1";
         in {

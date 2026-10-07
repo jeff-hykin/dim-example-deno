@@ -1,7 +1,8 @@
 # dim-example-deno
 
-A showcase [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) app with a Deno
-server. It shows how to:
+A showcase [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) app: React.js, Vite,
+Deno Server. Pick it when the app needs to read files, zero-copy zenoh topics, run parallel
+background jobs, etc. It shows how to:
 
 - subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, via zenoh-web +
   [@dimos/msgs](https://jsr.io/@dimos/msgs))
@@ -10,6 +11,7 @@ server. It shows how to:
   (`GET /apps/dim-controller/api/status`)
 - post a Desktop notification and open another app
 - offer endpoints for the agent (`agent:`) and private ones for its own page (`private:`)
+- look like Desktop in every skin (`src/theme.ts`: `useDesktopTheme()`)
 
 Read
 **[Making a dimOS app](https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md)**
