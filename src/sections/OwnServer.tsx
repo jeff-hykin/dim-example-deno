@@ -1,5 +1,5 @@
 // 6: this app's own server (backend/main.ts), at relative `api/...` URLs
-//   GET api/hello     public: listed under dimos.yaml `agent:`, so the agent and other apps may call it too
+//   GET api/hello     public: listed under dimos.yaml `provides:`, so the agent and other apps may call it too
 //   api/internal/*    private: listed under `private:`, only this app's own pages may call it
 import { useCallback, useEffect, useState } from "react";
 import { json, postJson } from "../api.ts";
@@ -42,7 +42,7 @@ export function OwnServer() {
   return (
     <Section
       title="6 · This app's own server"
-      note="GET api/hello is public (dimos.yaml agent:): the agent and other apps may call it. api/internal/* is private: only this app's own pages may."
+      note="GET api/hello is public (dimos.yaml provides:): the agent and other apps may call it. api/internal/* is private: only this app's own pages may."
     >
       <Output value={hello} />
       <div className={styles.row}>

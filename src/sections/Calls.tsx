@@ -1,4 +1,4 @@
-// 3, 4, 5: calls out of the app, each declared in dimos.yaml `dimos-api:`
+// 3, 4, 5: calls out of the app, each declared in dimos.yaml `uses:`
 import { json, postJson } from "../api.ts";
 import { Output, Section, useLoad } from "./Section.tsx";
 import styles from "./Calls.module.css";
@@ -34,7 +34,8 @@ export function OtherApp() {
       title="4 · Call another app"
       note={
         <>
-          <code>GET /apps/dim-controller/api/status</code> — Controller's public (agent:) endpoint
+          <code>GET /apps/dim-controller/api/status</code>{" "}
+          — Controller's public (provides:) endpoint
         </>
       }
     >

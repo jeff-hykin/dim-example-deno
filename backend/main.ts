@@ -1,5 +1,6 @@
 // dimos-app-server for the Deno example: serves the built page (`deno task build` -> ../dist) and this app's API on the
-// unix socket Desktop gives. No dependencies, so it runs offline (Desktop's nix build pins Deno itself).
+// unix socket Desktop gives, and talks zenoh itself (robot.ts, zenoh-deno). Its dependencies are vendored
+// (backend/deno.json `vendor: true`), so the nix build runs offline.
 //
 // What Desktop passes: one env var, DIMOS_APP, a JSON object (Desktop's docs/apps.md, "dimos-app-server"):
 //   { version, name, socket, url, path, dataDir, desktopUrl, zenohGatewayUrl, zenohConnect, zenohNamespace, zenohPrefix,
@@ -7,16 +8,23 @@
 // Requests arrive with the app's path (/apps/<name>) already removed: "/api/hello", "/", "/assets/index-….js".
 //
 // The API, as dimos.yaml declares it:
-//   GET  /api/hello           public (agent:): who we are + what dimos is running (a call to the gateway from here)
-//   POST /api/notes           public (agent:): the agent adds a note; Desktop shows a notification
+//   GET  /api/hello           public (provides:): who we are, what dimos is running (a call to the gateway from here),
+//                             and the robot's odometry summary (robot.ts; also pushed on <zenohPrefix>/frontend/odom)
+//   POST /api/notes           public (provides:): the agent adds a note; Desktop shows a notification
 //   GET  /api/internal/notes  private: the page lists notes
 //   POST /api/internal/notes  private: the page adds one
+//   POST /api/internal/zero-copy  private: run the zero-copy demo (zero_copy.ts); also pushed on <zenohPrefix>/frontend/zero-copy
+
+import { startRobot } from "./robot.ts";
+import { zeroCopyDemo } from "./zero_copy.ts";
 
 const app = JSON.parse(Deno.env.get("DIMOS_APP") ?? "{}") as {
   name?: string;
   socket?: string;
   dataDir?: string;
   desktopUrl?: string;
+  zenohConnect?: string;
+  zenohPrefix?: string;
 };
 const flag = (name: string) => {
   const index = Deno.args.indexOf(`--${name}`);
@@ -26,6 +34,24 @@ const frontend = flag("frontend") ?? new URL("../dist", import.meta.url).pathnam
 const desktopUrl = app.desktopUrl ?? "http://127.0.0.1:5555";
 const dataDir = app.dataDir ?? new URL("../.data", import.meta.url).pathname;
 const notesFile = `${dataDir}/notes.json`;
+
+// zenoh failing (no network to fetch its native library on a first run, say) leaves the rest of the app up
+const robot = startRobot({
+  zenohConnect: app.zenohConnect ?? "",
+  zenohPrefix: app.zenohPrefix ?? `dim-example-deno/apps/${app.name ?? "local"}`,
+}).catch((error) => {
+  console.error(`zenoh: ${error}`);
+  return null;
+});
+// Desktop stops an app with SIGTERM to its process group (SIGKILL 5 s later): close the session so peers drop us at
+// once, but give up after 2 s (zenoh's close can wait ~10 s on a peer it found by multicast and can't reach)
+for (const signal of ["SIGTERM", "SIGINT"] as const) {
+  Deno.addSignalListener(signal, async () => {
+    const closed = robot.then((session) => session?.close()).catch(() => {});
+    await Promise.race([closed, new Promise((resolve) => setTimeout(resolve, 2000))]);
+    Deno.exit(0);
+  });
+}
 
 // ── state: a JSON file in the app's own data folder (its checkout is replaced on update; dataDir isn't) ──
 async function readNotes(): Promise<string[]> {
@@ -42,7 +68,7 @@ async function addNote(text: string): Promise<string[]> {
   return notes;
 }
 
-// ── calls out of the app: Desktop and the dimos gateway (declared in dimos.yaml dimos-api: too) ──
+// ── calls out of the app: Desktop and the dimos gateway (declared in dimos.yaml uses: too) ──
 async function desktop(method: string, path: string, body?: unknown) {
   const response = await fetch(`${desktopUrl}${path}`, {
     method,
@@ -51,6 +77,8 @@ async function desktop(method: string, path: string, body?: unknown) {
   });
   return await response.json();
 }
+
+let zeroCopyRun: ReturnType<typeof zeroCopyDemo> | null = null;
 
 const json = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), { status, headers: { "content-type": "application/json" } });
@@ -65,6 +93,7 @@ async function api(request: Request, path: string): Promise<Response | null> {
       time: new Date().toISOString(),
       running: launch ? `${launch.blueprint} (${launch.phase})` : null,
       notes: (await readNotes()).length,
+      odom: (await robot)?.summary() ?? null,
     });
   }
   if (route === "POST /api/notes" || route === "POST /api/internal/notes") {
@@ -83,6 +112,13 @@ async function api(request: Request, path: string): Promise<Response | null> {
       });
     }
     return json({ notes });
+  }
+  if (route === "POST /api/internal/zero-copy") {
+    // camera-sized frames to a second process, copied vs through zenoh shared memory; one run at a time
+    zeroCopyRun ??= zeroCopyDemo().finally(() => (zeroCopyRun = null));
+    const runs = await zeroCopyRun;
+    await (await robot)?.toPage("zero-copy", { type: "zero-copy", runs }).catch(() => {});
+    return json({ runs });
   }
   if (route === "GET /api/internal/notes") {
     return json({ notes: await readNotes() });

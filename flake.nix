@@ -15,6 +15,14 @@
                 aarch64-linux = "sha256-tCuxiMf26LGn1z+53TRDF4Y0k/Jj71i6TdsWOfbREuY=";
             };
             denoEnv = "export HOME=$TMPDIR DENO_DIR=$TMPDIR/deno DENO_NO_UPDATE_CHECK=1 DENO_NO_PROMPT=1";
+            # zenoh-deno from its release tarball: the module plus every platform's native library, loaded from beside
+            # the module, so the server needs no network (JSR carries the module but not the libraries). To update: the
+            # version and the tarball's hash (its line in the release's SHA256SUMS, as SRI), and backend/deno.json's jsr version.
+            zenohDenoRelease = rec {
+                version = "0.1.1";
+                url = "https://github.com/jeff-hykin/zenoh-deno/releases/download/v${version}/zenoh-deno-v${version}.tar.gz";
+                hash = "sha256-6br9zNhv5geGXVgnyLEus+NujbDkZTqJfTukHct2eYo=";
+            };
         in {
             packages = forAll (pkgs:
                 let
@@ -39,6 +47,37 @@
                         outputHashAlgo = "sha256";
                         outputHash = nodeModulesHash.${pkgs.stdenv.hostPlatform.system};
                     };
+                    # the server's jsr dependencies (backend/deno.json `vendor: true`): fixed-output, the same on every system.
+                    # After changing backend/deno.json or backend/deno.lock: set this to "", `nix build .#backendVendor`, paste the "got:".
+                    backendVendor = pkgs.stdenvNoCC.mkDerivation {
+                        name = "dim-example-deno-backend-vendor";
+                        src = files [ ./backend/deno.json ./backend/deno.lock ];
+                        nativeBuildInputs = [ pkgs.deno ];
+                        buildPhase = ''
+                            ${denoEnv}
+                            export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+                            cd backend
+                            deno install --frozen
+                        '';
+                        installPhase = "cp -R vendor $out";
+                        dontFixup = true;
+                        outputHashMode = "recursive";
+                        outputHashAlgo = "sha256";
+                        outputHash = "sha256-vYyPUft+UfTWf5CS8O7ETEjXsGpBHhU6sOyjLEbJwWA=";
+                    };
+                    zenohDeno = pkgs.runCommand "zenoh-deno-${zenohDenoRelease.version}" { } ''
+                        mkdir $out
+                        tar xzf ${pkgs.fetchurl { inherit (zenohDenoRelease) url hash; }} -C $out --strip-components=1
+                    '';
+                    # the server: its source plus that vendor folder, with zenoh-deno imported from the tarball instead of JSR
+                    backend = pkgs.runCommand "dim-example-deno-backend" { nativeBuildInputs = [ pkgs.jq ]; } ''
+                        cp -R ${files [ ./backend ]}/backend $out
+                        chmod -R u+w $out
+                        rm -rf $out/vendor
+                        cp -R ${backendVendor} $out/vendor
+                        jq --arg mod "file://${zenohDeno}/mod.ts" '.imports["@robotics/zenoh-deno"] = $mod' $out/deno.json > deno.json
+                        cp deno.json $out/deno.json
+                    '';
                     # the page: `deno task build` (vite) against that node_modules, offline
                     frontend = pkgs.stdenvNoCC.mkDerivation {
                         name = "dim-example-deno-frontend";
@@ -54,7 +93,7 @@
                     };
                     # Desktop runs `nix build .#dimosApp`; a bin/dimos-app-server is started with DIMOS_APP and proxied at /apps/<name>/
                     dimosApp = pkgs.writeShellScriptBin "dimos-app-server" ''
-                        exec ${pkgs.deno}/bin/deno run -A --no-lock ${./backend}/main.ts --frontend ${frontend} "$@"
+                        exec ${pkgs.deno}/bin/deno run -A --no-lock --cached-only --config ${backend}/deno.json ${backend}/main.ts --frontend ${frontend} "$@"
                     '';
                     default = dimosApp;
                 });

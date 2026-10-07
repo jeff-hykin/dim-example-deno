@@ -4,6 +4,7 @@ import { useDesktopTheme } from "./theme.ts";
 import { Drive, Odom } from "./sections/Topics.tsx";
 import { Gateway, OtherApp, TalkToDesktop } from "./sections/Calls.tsx";
 import { OwnServer } from "./sections/OwnServer.tsx";
+import { ZeroCopy } from "./sections/ZeroCopy.tsx";
 import styles from "./App.module.css";
 
 export function App({ zenoh }: { zenoh: Promise<ZenohGateway> }) {
@@ -29,6 +30,7 @@ export function App({ zenoh }: { zenoh: Promise<ZenohGateway> }) {
         <OtherApp />
         <TalkToDesktop />
         <OwnServer />
+        <ZeroCopy />
       </main>
     </div>
   );

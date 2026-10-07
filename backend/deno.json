@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@robotics/zenoh-deno": "jsr:@robotics/zenoh-deno@0.1.0",
+    "@dimos/msgs/geometry_msgs": "jsr:@dimos/msgs@0.1.4/geometry_msgs"
+  },
+  "vendor": true
+}

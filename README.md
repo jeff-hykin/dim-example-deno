@@ -13,6 +13,9 @@ background jobs, etc. It shows how to:
 - offer endpoints for the agent (`provides: endpoints:`) and private ones for its own page
   (`provides: private:`)
 - look like Desktop in every skin (`src/theme.ts`: `useDesktopTheme()`)
+- talk zenoh from the Deno server itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)):
+  it hears `/odom` straight off dimos's network and pushes a distance/speed summary to the page,
+  and its zero-copy demo sends 8 MiB frames to a second process copied vs through zenoh shared memory
 
 Read
 **[Making a dimOS app](https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md)**
@@ -30,10 +33,12 @@ Desktop → App Store → **Install From URL** → `github.com/jeff-hykin/dim-ex
 - `dimos.yaml`: the contract with Desktop (what it calls, what it offers)
 - `icon.svg`: its icon
 - `flake.nix`: `nix build .#dimosApp` is what Desktop runs (installs `deno.lock`'s packages, builds
-  the page, wraps the server)
+  the page, vendors the server's packages, takes zenoh-deno and its native libraries from its release
+  tarball, wraps the server: no network at run time)
 - `index.html`, `src/`: the page, React + Vite + TypeScript (`src/theme.ts` makes it look like
   Desktop, `src/sections/` is one file per thing it shows)
-- `backend/main.ts`: the server (no dependencies); it serves the built page from `dist/`
+- `backend/main.ts`: the server; it serves the built page from `dist/`. `backend/robot.ts`: its zenoh
+  session (odom), `backend/zero_copy.ts`: the zero-copy demo
 
 ## Develop
 

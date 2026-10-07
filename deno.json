@@ -4,7 +4,7 @@
     "dev": "deno run -A npm:vite",
     "build": "deno run -A npm:vite build",
     "test": "deno run -A npm:vitest run",
-    "check": "deno run -A npm:typescript/tsc --noEmit && deno check backend/main.ts",
+    "check": "deno run -A npm:typescript/tsc --noEmit && deno check --config backend/deno.json backend/main.ts",
     "serve": "deno run -A --watch backend/main.ts --port 8787"
   },
   "fmt": {

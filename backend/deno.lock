@@ -1,0 +1,21 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@dimos/msgs@0.1.4": "0.1.4",
+    "jsr:@robotics/zenoh-deno@0.1.0": "0.1.0"
+  },
+  "jsr": {
+    "@dimos/msgs@0.1.4": {
+      "integrity": "564bc30b4bc41a562c296c257a15055283ca0cbd66d0627991ede5295832d0c4"
+    },
+    "@robotics/zenoh-deno@0.1.0": {
+      "integrity": "d82d3736848810158f6bb82cb749d9d1039a21273f8419d55f614cd735788a0f"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@dimos/msgs@0.1.4",
+      "jsr:@robotics/zenoh-deno@0.1.0"
+    ]
+  }
+}

@@ -4,3 +4,4 @@ result-*
 /.data
 node_modules
 dist
+/backend/vendor
