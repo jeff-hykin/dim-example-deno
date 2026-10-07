@@ -10,7 +10,7 @@ background jobs, etc. It shows how to:
 - call the dimos gateway (`GET /dimos/runs`) and another app's public endpoint
   (`GET /apps/dim-controller/api/status`)
 - post a Desktop notification and open another app
-- offer endpoints for the agent (`agent:`) and private ones for its own page (`private:`)
+- offer endpoints for the agent (`provides: endpoints:`) and private ones for its own page (`provides: private:`)
 - look like Desktop in every skin (`src/theme.ts`: `useDesktopTheme()`)
 
 Read
