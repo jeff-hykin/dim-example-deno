@@ -25,7 +25,8 @@ export function App(
   return (
     <div className={styles.page}>
       <header>
-        <h1 className={styles.heading}>dimOS example app</h1>
+        {/* inside Desktop, its window bar already names the app */}
+        {window.parent === window && <h1 className={styles.heading}>dimOS example app</h1>}
         <p className={styles.subtitle}>
           a Deno server + a React page{error && ` · ✗ ${error}`}
         </p>
