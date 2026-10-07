@@ -9,10 +9,10 @@
   },
   "fmt": {
     "lineWidth": 100,
-    "exclude": ["dist/", "icon.svg", "dimos.yaml"]
+    "exclude": ["dist/", "icon.svg", "dimos.yaml", "src/dim-app/"]
   },
   "lint": {
-    "exclude": ["dist/"],
+    "exclude": ["dist/", "src/dim-app/"],
     "rules": {
       "tags": ["recommended"]
     }

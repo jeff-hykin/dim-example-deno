@@ -2,29 +2,44 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Point, Pose, PoseStamped } from "@dimos/msgs/geometry_msgs";
-import type { Message, ZenohGateway } from "./zenoh.ts";
+import { Point, Pose, PoseStamped, Twist } from "@dimos/msgs/geometry_msgs";
 import { App } from "./App.tsx";
+import { DimApp } from "./dim.ts";
 import { msgsStandIn } from "./msgs_stand_in.ts";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-function fakeZenoh() {
+type Message = { key: string; kind: string; bytes: Uint8Array; timestamp: number; seq: number };
+
+/** A real DimApp over a fake zenoh-gateway client, with @dimos/msgs standing in for /dimos/msgs.js */
+function fakeDim() {
   const subscribers = new Map<string, (message: Message) => void>();
   const puts: Uint8Array[] = [];
-  const zenoh: ZenohGateway = {
-    subscribe: (key, _options, callback) => {
+  const deadmen = new Map<string, Uint8Array>();
+  const client = {
+    state: "connected",
+    onState: () => () => {},
+    subscribe: (key: string, _options: unknown, callback: (message: Message) => void) => {
       subscribers.set(key, callback);
       return { close: () => subscribers.delete(key) };
     },
-    publisher: () => ({
-      put: (bytes) => puts.push(bytes),
-      setDeadman: () => Promise.resolve(),
+    publisher: (key: string) => ({
+      key,
+      put: (bytes: Uint8Array) => puts.push(bytes),
+      setDeadman: (bytes: Uint8Array) => Promise.resolve(void deadmen.set(key, bytes)),
       close: () => {},
     }),
     close: () => {},
   };
-  return { zenoh, subscribers, puts };
+  const discovery = { namespace: "ns", zenohGatewayUrl: "/zenoh-gateway" };
+  const dim = new DimApp({
+    msgDecodeEndpoint: "../../dimos/msgs.js",
+    msgs: msgsStandIn,
+    href: "http://localhost/apps/dim-example-deno/",
+    fetch: () => Promise.resolve(new Response(JSON.stringify(discovery))),
+    connect: () => Promise.resolve(client),
+  });
+  return { dim, subscribers, puts, deadmen };
 }
 
 const answers: Record<string, unknown> = {
@@ -37,6 +52,7 @@ const answers: Record<string, unknown> = {
 describe("App", () => {
   let container: HTMLElement;
   let root: Root;
+  let dim: DimApp | null = null;
 
   beforeEach(() => {
     vi.stubGlobal(
@@ -54,18 +70,21 @@ describe("App", () => {
     act(() => root.unmount());
     container.remove();
     vi.unstubAllGlobals();
+    dim?.zenoh.close(); // the page's one connection is a singleton: the next test gets its own
+    dim = null;
   });
 
-  async function render(zenoh: ZenohGateway) {
+  async function render(fake: ReturnType<typeof fakeDim>) {
+    dim = fake.dim;
     await act(async () => {
-      root.render(<App zenoh={Promise.resolve(zenoh)} msgs={Promise.resolve(msgsStandIn)} />);
-      // the fetches and the zenoh/msgs promises settle inside act
+      root.render(<App dim={fake.dim} />);
+      // the fetches, discovery and the connection settle inside act
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
   }
 
   it("shows the gateway, the other app and its own server's answers", async () => {
-    await render(fakeZenoh().zenoh);
+    await render(fakeDim());
     const text = container.textContent ?? "";
     expect(text).toContain('"blueprint": "unitree-go2"');
     expect(text).toContain('"ok": true');
@@ -75,8 +94,9 @@ describe("App", () => {
   });
 
   it("subscribes to odom and shows the decoded pose", async () => {
-    const { zenoh, subscribers } = fakeZenoh();
-    await render(zenoh);
+    const fake = fakeDim();
+    await render(fake);
+    const { subscribers } = fake;
     const key = "dimos/odom/geometry_msgs.PoseStamped";
     const deliver = subscribers.get(key);
     expect(deliver).toBeDefined();
@@ -86,5 +106,14 @@ describe("App", () => {
     await act(() => deliver!({ key, kind: "put", bytes, timestamp: 0, seq: 0 }));
     expect(container.textContent).toContain("1.50");
     expect(container.textContent).toContain("-2.00");
+  });
+
+  it("opens cmd_vel's publisher with a zero Twist armed as its deadman", async () => {
+    const fake = fakeDim();
+    await render(fake);
+    const deadman = fake.deadmen.get("dimos/cmd_vel/geometry_msgs.Twist");
+    expect(deadman).toBeDefined();
+    const twist = Twist.decode(deadman!);
+    expect([twist.linear.x, twist.angular.z]).toEqual([0, 0]);
   });
 });

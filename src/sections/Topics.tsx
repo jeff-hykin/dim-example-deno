@@ -1,28 +1,27 @@
-// 1 + 2: subscribe to a topic and decode it, publish one (dimos.yaml: its zenoh-gateway range)
+// 1 + 2: subscribe to a topic and decode it, publish one (dimos.yaml: its zenoh-gateway range), through DimApp
 import { useEffect, useRef, useState } from "react";
-import type { Publisher, ZenohGateway } from "../zenoh.ts";
-import type { DimosMsgs, PoseStamped } from "../msgs.ts";
-import { encodeTwist, type Pose2d, topicPath, toPose2d } from "../topics.ts";
+import type { DimApp, DimPublisher } from "../dim.ts";
+import type { PoseStamped } from "../msgs.ts";
+import { type Pose2d, toPose2d, twist } from "../topics.ts";
 import { Section } from "./Section.tsx";
 import styles from "./Topics.module.css";
 
-type Props = { zenoh: ZenohGateway | null; msgs: DimosMsgs | null };
+type Props = { dim: DimApp };
 
-export function Odom({ zenoh, msgs }: Props) {
+export function Odom({ dim }: Props) {
   const [topic, setTopic] = useState("odom");
   const [pose, setPose] = useState<Pose2d | null>(null);
   const [hz, setHz] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!zenoh || !msgs) {
-      return;
-    }
     let count = 0;
     let since = performance.now();
-    const key = msgs.geometry_msgs.PoseStamped.zenohKey(topicPath(topic));
-    const subscription = zenoh.subscribe(key, { delivery: "latest", maxHz: 20 }, (message) => {
-      // the type in the key picks the decoder
-      setPose(toPose2d(msgs.decodeMessage(message) as PoseStamped));
+    // decoded by msgs.js (raw bytes only when it couldn't load)
+    return dim.subscribe<PoseStamped>(topic, (message) => {
+      if (message instanceof Uint8Array) {
+        return;
+      }
+      setPose(toPose2d(message));
       count++;
       const now = performance.now();
       if (now - since > 1000) {
@@ -30,9 +29,8 @@ export function Odom({ zenoh, msgs }: Props) {
         count = 0;
         since = now;
       }
-    });
-    return () => subscription.close();
-  }, [zenoh, msgs, topic]);
+    }, { type: "geometry_msgs.PoseStamped", delivery: "latest", maxHz: 20 });
+  }, [dim, topic]);
 
   return (
     <Section
@@ -54,34 +52,38 @@ export function Odom({ zenoh, msgs }: Props) {
   );
 }
 
-export function Drive({ zenoh, msgs }: Props) {
+export function Drive({ dim }: Props) {
   const [topic, setTopic] = useState("cmd_vel");
   const [sent, setSent] = useState(0);
-  const publisher = useRef<Publisher | null>(null);
+  const publisher = useRef<DimPublisher | null>(null);
   const driving = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
-    if (!zenoh || !msgs) {
-      return;
-    }
-    const opened = zenoh.publisher(msgs.geometry_msgs.Twist.zenohKey(topicPath(topic)), {
-      delivery: "latest",
-    });
-    // armed on the bridge: published for us if this page stops heartbeating
-    opened.setDeadman(encodeTwist(msgs, 0, 0)).catch((error) => console.error(error));
-    publisher.current = opened;
+    let opened: DimPublisher | null = null;
+    let gone = false;
+    dim.publisher(topic, "geometry_msgs.Twist", { delivery: "latest" }).then((next) => {
+      if (gone) {
+        next.close();
+        return;
+      }
+      opened = next;
+      publisher.current = next;
+      // armed on the bridge: published for us if this page stops heartbeating
+      return next.setDeadman(twist(0, 0));
+    }).catch((error) => console.error(error));
     return () => {
+      gone = true;
       clearInterval(driving.current);
-      opened.close();
+      opened?.close();
       publisher.current = null;
     };
-  }, [zenoh, msgs, topic]);
+  }, [dim, topic]);
 
   const hold = (forward: number, turn: number) => ({
     onPointerDown: () => {
       clearInterval(driving.current);
       driving.current = setInterval(() => {
-        msgs && publisher.current?.put(encodeTwist(msgs, forward, turn));
+        publisher.current?.put(twist(forward, turn));
         setSent((count) => count + 1);
       }, 100);
     },
@@ -93,7 +95,7 @@ export function Drive({ zenoh, msgs }: Props) {
     if (driving.current !== undefined) {
       clearInterval(driving.current);
       driving.current = undefined;
-      msgs && publisher.current?.put(encodeTwist(msgs, 0, 0));
+      publisher.current?.put(twist(0, 0));
     }
   }
 
@@ -136,8 +138,8 @@ function TopicInput({ value, onChange }: { value: string; onChange: (topic: stri
       <input
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
-        onBlur={() => onChange(draft)}
-        onKeyDown={(event) => event.key === "Enter" && onChange(draft)}
+        onBlur={() => onChange(draft.trim())}
+        onKeyDown={(event) => event.key === "Enter" && onChange(draft.trim())}
       />
     </label>
   );

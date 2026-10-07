@@ -1,34 +1,42 @@
 // For the tests only: the gateway's /dimos/msgs.js isn't there offline, so @dimos/msgs (the same LCM wire format, a
-// devDependency) stands in for the part of it msgs.ts types.
+// devDependency) stands in for the part of it this page uses; tests hand it to DimApp's `msgs` option.
 import { PoseStamped, Twist, Vector3 } from "@dimos/msgs/geometry_msgs";
-import type { DimosMsgs, MsgType, PoseStamped as Pose, Twist as TwistValue } from "./msgs.ts";
+import type { MsgsModule, MsgType } from "./dim.ts";
+import type { MsgInput, Twist as TwistValue } from "./msgs.ts";
 
-const zenohKey = (name: string) => (topic: string) => `${topic}/${name}`;
 const vector = (value?: Partial<Vector3>) => new Vector3({ x: 0, y: 0, z: 0, ...value });
 
-const poseStamped: MsgType<Pose> = {
-  name: "geometry_msgs.PoseStamped",
-  decode: (bytes) => PoseStamped.decode(bytes),
-  encode: () => {
-    throw new Error("not needed by the tests");
+const types: Record<string, MsgType> = {
+  "geometry_msgs.PoseStamped": {
+    name: "geometry_msgs.PoseStamped",
+    decode: (bytes) => PoseStamped.decode(bytes),
+    encode: () => {
+      throw new Error("not needed by the tests");
+    },
+    zenohKey: (topic) => `${topic}/geometry_msgs.PoseStamped`,
   },
-  zenohKey: zenohKey("geometry_msgs.PoseStamped"),
-};
-const twist: MsgType<TwistValue> = {
-  name: "geometry_msgs.Twist",
-  decode: (bytes) => Twist.decode(bytes),
-  encode: ({ linear, angular }) =>
-    new Twist({ linear: vector(linear), angular: vector(angular) }).encode(),
-  zenohKey: zenohKey("geometry_msgs.Twist"),
+  "geometry_msgs.Twist": {
+    name: "geometry_msgs.Twist",
+    decode: (bytes) => Twist.decode(bytes),
+    encode: (value) => {
+      const { linear, angular } = value as MsgInput<TwistValue>;
+      return new Twist({ linear: vector(linear), angular: vector(angular) }).encode();
+    },
+    zenohKey: (topic) => `${topic}/geometry_msgs.Twist`,
+  },
 };
 
-export const msgsStandIn: DimosMsgs = {
-  decodeMessage: ({ key, bytes }) => {
-    const type = [poseStamped, twist].find(({ name }) => key.endsWith(`/${name}`));
-    if (!type) {
-      throw new Error(`no stand-in for ${key}`);
-    }
-    return type.decode(bytes);
-  },
-  geometry_msgs: { PoseStamped: poseStamped, Twist: twist },
+const lookup = (name: string): MsgType => {
+  const type = types[name];
+  if (!type) {
+    throw new Error(`no stand-in for ${name}`);
+  }
+  return type;
+};
+const typeOfChannel = (key: string) => key.split("/").pop();
+
+export const msgsStandIn: MsgsModule = {
+  lookup,
+  typeOfChannel,
+  decodeChannel: (key, bytes) => lookup(typeOfChannel(key) ?? "").decode(bytes),
 };

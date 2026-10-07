@@ -4,8 +4,9 @@ A showcase [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) a
 Deno Server. Pick it when the app needs to read files, zero-copy zenoh topics, run parallel
 background jobs, etc. It shows how to:
 
-- subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, via
-  zenoh-gateway + the dimos gateway's `/dimos/msgs.js`, loaded at run time: `src/msgs.ts`)
+- subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, with
+  [dim-app](https://github.com/jeff-hykin/dim-app)'s `DimApp`: zenoh-gateway + the dimos gateway's
+  `/dimos/msgs.js`, loaded at run time; `src/dim.ts`, vendored in `src/dim-app/`)
 - publish one (`/cmd_vel`, a `geometry_msgs.Twist`, with a deadman)
 - call the dimos gateway (`GET /dimos/runs`) and another app's public endpoint
   (`GET /apps/dim-controller/api/status`)
