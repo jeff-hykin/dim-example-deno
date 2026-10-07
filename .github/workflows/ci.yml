@@ -22,7 +22,12 @@ jobs:
           chmod +x dimos-desktop
           ./dimos-desktop app check .
   nix:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # x86_64-linux, aarch64-linux, aarch64-darwin: each has its own node_modules hash in flake.nix
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
