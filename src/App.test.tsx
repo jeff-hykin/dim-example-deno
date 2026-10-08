@@ -18,6 +18,7 @@ function fakeDim() {
   const deadmen = new Map<string, Uint8Array>();
   const client = {
     state: "connected",
+    options: { heartbeatHz: 5 },
     onState: () => () => {},
     subscribe: (key: string, _options: unknown, callback: (message: Message) => void) => {
       subscribers.set(key, callback);
@@ -27,6 +28,7 @@ function fakeDim() {
       key,
       put: (bytes: Uint8Array) => puts.push(bytes),
       setDeadman: (bytes: Uint8Array) => Promise.resolve(void deadmen.set(key, bytes)),
+      clearDeadman: () => Promise.resolve(void deadmen.delete(key)),
       close: () => {},
     }),
     close: () => {},
@@ -108,12 +110,35 @@ describe("App", () => {
     expect(container.textContent).toContain("-2.00");
   });
 
-  it("opens cmd_vel's publisher with a zero Twist armed as its deadman", async () => {
+  it("sends nothing on cmd_vel until a button is pressed; a release stops and disarms", async () => {
     const fake = fakeDim();
     await render(fake);
-    const deadman = fake.deadmen.get("dimos/cmd_vel/geometry_msgs.Twist");
-    expect(deadman).toBeDefined();
-    const twist = Twist.decode(deadman!);
-    expect([twist.linear.x, twist.angular.z]).toEqual([0, 0]);
+    await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
+    expect([fake.puts.length, fake.deadmen.size]).toEqual([0, 0]);
+    const forward = [...container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("forward")
+    )!;
+    await act(() => {
+      forward.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    });
+    expect(fake.puts.length).toBe(0); // a hover that leaves sends no stop
+    await act(() => {
+      forward.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 250)));
+    const drive = Twist.decode(fake.puts[0]);
+    expect(drive.linear.x).toBeCloseTo(0.3);
+    const deadman = Twist.decode(fake.deadmen.get("dimos/cmd_vel/geometry_msgs.Twist")!);
+    expect([deadman.linear.x, deadman.angular.z]).toEqual([0, 0]);
+    await act(() => {
+      forward.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+    });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 250)));
+    const stopped = Twist.decode(fake.puts.at(-1)!);
+    expect([stopped.linear.x, stopped.angular.z]).toEqual([0, 0]);
+    expect(fake.deadmen.size).toBe(0);
+    const count = fake.puts.length;
+    await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
+    expect(fake.puts.length).toBe(count);
   });
 });

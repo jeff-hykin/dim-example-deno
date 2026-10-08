@@ -68,7 +68,8 @@ export function Drive({ dim }: Props) {
       }
       opened = next;
       publisher.current = next;
-      // armed on the bridge: published for us if this page stops heartbeating
+      // the stop value: armed on the bridge once a button drives (published for us if this page then stops
+      // heartbeating), disarmed by the release; nothing at all goes out before the first press
       return next.setDeadman(twist(0, 0));
     }).catch((error) => console.error(error));
     return () => {
@@ -95,7 +96,7 @@ export function Drive({ dim }: Props) {
     if (driving.current !== undefined) {
       clearInterval(driving.current);
       driving.current = undefined;
-      publisher.current?.put(twist(0, 0));
+      publisher.current?.stop();
     }
   }
 
@@ -105,7 +106,8 @@ export function Drive({ dim }: Props) {
       note={
         <>
           hold a button: a <code>geometry_msgs.Twist</code> at 10 Hz on{" "}
-          <code>dimos/{topic}/geometry_msgs.Twist</code>; a zero Twist is armed as the deadman
+          <code>dimos/{topic}/geometry_msgs.Twist</code>; nothing is sent until you press; while you
+          drive a zero Twist is armed as the deadman, and the release sends it and disarms
         </>
       }
     >
