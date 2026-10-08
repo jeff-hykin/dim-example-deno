@@ -1,35 +1,32 @@
 # dim-example-deno
 
+This is an example app for dimos desktop.
+
+# Install
+
+Desktop → App Store → **Install From URL** → `github.com/jeff-hykin/dim-example-deno`
+
+or in the command line:
+
 ```sh
 dimos-desktop install github.com/jeff-hykin/dim-example-deno
 ```
 
-(or Desktop → App Store → **Install From URL** → `github.com/jeff-hykin/dim-example-deno`)
+# This Stack
 
-[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/jeff-hykin/dim-example-deno/generate)
+React + Vite + Deno server that talks zenoh itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)). 
+- read files
+- efficient watch zero-copy zenoh topics
+- run background jobs
 
-A [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) app: a React + Vite page and a
-Deno server that talks zenoh itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)). Pick
-it to read files, use zero-copy zenoh topics, or run background jobs. Every snippet is from this
-repo, trimmed to the point. How apps work:
-**[Making a dimOS app](https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md)**.
-Other examples: [plain HTML](https://github.com/jeff-hykin/dim-example-html) ·
-[Rust](https://github.com/jeff-hykin/dim-example-rust).
 
 ![the whole React page inside Desktop](docs/images/page.png)
 
-## Built by nix, started by Desktop
+## 1. Buikd
 
-Desktop runs `nix build .#dimosApp` (offline: packages are vendored) and starts its
-`bin/dimos-app-server`.
+Run `nix build .#dimosApp`
 
-```nix
-dimosApp = pkgs.writeShellScriptBin "dimos-app-server" ''
-    exec ${pkgs.deno}/bin/deno run -A --no-lock --cached-only --config ${backend}/deno.json ${backend}/main.ts --frontend ${frontend} "$@"
-'';
-```
-
-## Read `DIMOS_APP`, serve on Desktop's socket
+## 2. Server reads `DIMOS_APP` for the socket address
 
 `backend/main.ts`:
 
