@@ -14,9 +14,9 @@ dimos-desktop install github.com/jeff-hykin/dim-example-deno
 
 # This Stack
 
-React + Vite + Deno server that talks zenoh itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)). 
-- read files
-- efficient watch zero-copy zenoh topics
+React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)
+- read/write files
+- efficiently watch zero-copy zenoh topics
 - run background jobs
 
 
