@@ -15,7 +15,7 @@ dimos-desktop install github.com/jeff-hykin/dim-example-deno
 # This Stack
 
 React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)
-- read/write files
+- watch/read/write files
 - efficiently watch zero-copy zenoh topics
 - run background jobs
 
@@ -48,9 +48,9 @@ if (app.socket) {
 }
 ```
 
-## Hear the robot straight off zenoh, on the server
+## Listen to Topics
 
-`backend/robot.ts` opens its own zenoh session, decodes `/odom` with `@dimos/msgs`, and keeps a
+`backend/robot.ts` connects to zenoh, decodes `/odom` with `@dimos/msgs`, and keeps a
 distance/speed summary.
 
 ```ts
@@ -63,10 +63,12 @@ await session.declareSubscriber("dimos/odom/geometry_msgs.PoseStamped", {
 });
 ```
 
-## Push to the app's pages
+## Backend informing the Frontend
 
-Backend to page is always zenoh: anything put on `<zenohPrefix>/frontend/<topic>` reaches every open
-page through Desktop's zenoh-gateway.
+Typically the frontend calls the backend (http request), but when we want to go in the opposite direction (ex: file watcher) we use zenoh-gateway. We put it on `<zenohPrefix>/frontend/<topic>` reaches every open
+page through Desktop's zenoh-gateway. 
+
+This allows us to have one connection that is managing bandwidth prioritisation for all backend-to-frontend data. 
 
 ```ts
 const publisher = await session.declarePublisher(`${zenohPrefix}/frontend/odom`);
