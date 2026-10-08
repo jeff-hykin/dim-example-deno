@@ -1,50 +1,175 @@
 # dim-example-deno
 
-A showcase [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) app: React.js, Vite,
-Deno Server. Pick it when the app needs to read files, zero-copy zenoh topics, run parallel
-background jobs, etc. It shows how to:
+```sh
+dimos-desktop install github.com/jeff-hykin/dim-example-deno
+```
 
-- subscribe to a dimos topic and decode it (`/odom`, a `geometry_msgs.PoseStamped`, with
-  [dim-app](https://github.com/jeff-hykin/dim-app)'s `DimApp`: zenoh-gateway + the dimos gateway's
-  `/dimos/msgs.js`, loaded at run time; `src/dim.ts`, vendored in `src/dim-app/`)
-- publish one (`/cmd_vel`, a `geometry_msgs.Twist`, with a deadman)
-- call the dimos gateway (`GET /dimos/runs`) and another app's public endpoint
-  (`GET /apps/dim-controller/api/status`)
-- post a Desktop notification and open another app
-- offer endpoints for the agent (`provides: endpoints:`) and private ones for its own page
-  (`provides: private:`)
-- look like Desktop in every skin (`src/theme.ts`: `useDesktopTheme()`)
-- talk zenoh from the Deno server itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)):
-  it hears `/odom` straight off dimos's network and pushes a distance/speed summary to the page, and
-  its zero-copy demo sends 8 MiB frames to a second process copied vs through zenoh shared memory
+(or Desktop → App Store → **Install From URL** → `github.com/jeff-hykin/dim-example-deno`)
 
-Read
-**[Making a dimOS app](https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md)**
-(in the dimOS Desktop repo) for how dimOS apps work. The other examples:
-[plain HTML](https://github.com/jeff-hykin/dim-example-html) ·
-[Deno](https://github.com/jeff-hykin/dim-example-deno) ·
+[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/jeff-hykin/dim-example-deno/generate)
+
+A [dimOS Desktop](https://github.com/jeff-hykin/dimos-desktop-mirror) app: a React + Vite page and a
+Deno server that talks zenoh itself ([zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)). Pick
+it to read files, use zero-copy zenoh topics, or run background jobs. Every snippet is from this
+repo, trimmed to the point. How apps work:
+**[Making a dimOS app](https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md)**.
+Other examples: [plain HTML](https://github.com/jeff-hykin/dim-example-html) ·
 [Rust](https://github.com/jeff-hykin/dim-example-rust).
 
-## Install it
+![the whole React page inside Desktop](docs/images/page.png)
 
-Desktop → App Store → **Install From URL** → `github.com/jeff-hykin/dim-example-deno`.
+## Built by nix, started by Desktop
 
-## Files
+Desktop runs `nix build .#dimosApp` (offline: packages are vendored) and starts its
+`bin/dimos-app-server`.
 
-- `dimos.yaml`: the contract with Desktop (what it calls, what it offers)
-- `icon.svg`: its icon
-- `flake.nix`: `nix build .#dimosApp` is what Desktop runs (installs `deno.lock`'s packages, builds
-  the page, vendors the server's packages, takes zenoh-deno and its native libraries from its
-  release tarball, wraps the server: no network at run time)
-- `index.html`, `src/`: the page, React + Vite + TypeScript (`src/theme.ts` makes it look like
-  Desktop, `src/sections/` is one file per thing it shows)
-- `backend/main.ts`: the server; it serves the built page from `dist/`. `backend/robot.ts`: its
-  zenoh session (odom), `backend/zero_copy.ts`: the zero-copy demo
+```nix
+dimosApp = pkgs.writeShellScriptBin "dimos-app-server" ''
+    exec ${pkgs.deno}/bin/deno run -A --no-lock --cached-only --config ${backend}/deno.json ${backend}/main.ts --frontend ${frontend} "$@"
+'';
+```
+
+## Read `DIMOS_APP`, serve on Desktop's socket
+
+`backend/main.ts`:
+
+```ts
+const app = JSON.parse(Deno.env.get("DIMOS_APP") ?? "{}") as {
+  name?: string;
+  socket?: string;
+  dataDir?: string;
+  desktopUrl?: string;
+  zenohConnect?: string;
+  zenohPrefix?: string;
+};
+
+if (app.socket) {
+  Deno.serve({ path: app.socket, transport: "unix" }, serve);
+} else {
+  // outside Desktop: `deno task serve` serves on a port (open http://localhost:8787/)
+  Deno.serve({ port: Number(flag("port") ?? 8787) }, serve);
+}
+```
+
+## Hear the robot straight off zenoh, on the server
+
+`backend/robot.ts` opens its own zenoh session, decodes `/odom` with `@dimos/msgs`, and keeps a
+distance/speed summary.
+
+```ts
+const session: Session = await open(new Config(zenohConnect), { zenohVersion: "1.6.2" });
+await session.declareSubscriber("dimos/odom/geometry_msgs.PoseStamped", {
+  handler: (sample) => {
+    const { header, pose: { position } } = PoseStamped.decode(sample.payload().toBytes());
+    // ... distance and speed since the server started
+  },
+});
+```
+
+## Push to the app's pages
+
+Backend to page is always zenoh: anything put on `<zenohPrefix>/frontend/<topic>` reaches every open
+page through Desktop's zenoh-gateway.
+
+```ts
+const publisher = await session.declarePublisher(`${zenohPrefix}/frontend/odom`);
+const timer = setInterval(() => publisher.put(JSON.stringify(summary)).catch(() => {}), 500);
+```
+
+## Public and private endpoints
+
+```ts
+if (route === "GET /api/hello") {
+  const { launch } = await desktop("GET", "/dimos/runs").catch(() => ({ launch: null }));
+  return json({
+    shape: "Deno",
+    running: launch ? `${launch.blueprint} (${launch.phase})` : null,
+    notes: (await readNotes()).length,
+    odom: (await robot)?.summary() ?? null,
+  });
+}
+```
+
+```yaml
+provides:
+  endpoints:
+    - method: GET
+      path: api/hello
+      description: Who this app is, what dimos is running right now, and how many notes it holds
+      role: context
+    - method: POST
+      path: api/notes
+      description: Add a note to the app's list (the person gets a notification)
+  private:
+    - api/internal/*
+```
+
+![api/hello with the server's odom summary](docs/images/own-server.png)
+
+## Zero-copy frames through zenoh shared memory
+
+`backend/zero_copy.ts` sends 8 MiB frames to a second process, copied vs written once into shared
+memory and read in place.
+
+```ts
+const provider = await ShmProvider.create(frameBytes * 4, { zenohVersion: "1.6.2" });
+const frame = await provider.allocAsync(frameBytes);
+// a real producer renders the frame straight into frame.bytes()
+await publisher.put(frame);
+```
+
+![zero-copy demo results: copied vs shared memory](docs/images/zero-copy.png)
+
+## On the page: decoded topics in React
+
+`src/dim.ts` connects (dim-app vendored in `src/dim-app/`); `src/sections/Topics.tsx` subscribes in
+an effect, which returns the unsubscribe.
+
+```ts
+export function connectDimApp(): DimApp {
+  return new DimApp({
+    msgDecodeEndpoint: "../../dimos/msgs.js",
+    connectOptions: { heartbeatHz: 5, heartbeatMisses: 3 },
+  });
+}
+```
+
+```tsx
+useEffect(() => {
+  return dim.subscribe<PoseStamped>(topic, (message) => {
+    if (message instanceof Uint8Array) {
+      return;
+    }
+    setPose(toPose2d(message));
+  }, { type: "geometry_msgs.PoseStamped", delivery: "latest", maxHz: 20 });
+}, [dim, topic]);
+```
+
+## Look like Desktop in every skin
+
+`src/theme.ts` (copy it as is) follows Desktop's skin, corners and insets:
+
+```tsx
+export function App({ dim }: { dim: DimApp }) {
+  useDesktopTheme();
+  // ...
+}
+```
 
 ## Develop
 
 ```sh
 deno install
-deno task build && deno task serve   # http://localhost:8787 (or `deno task dev` for Vite's hot reload, next to it)
+deno task build && deno task serve   # http://localhost:8787 (or `deno task dev` for Vite's hot reload)
 deno task check && deno task test && deno fmt && deno lint
+dimos-desktop app check .            # dimos.yaml declares everything it calls
 ```
+
+## Files
+
+- `dimos.yaml`: the contract with Desktop (what it calls, what it offers)
+- `flake.nix`: `nix build .#dimosApp`
+- `index.html`, `src/`: the page (`src/sections/` is one file per thing it shows)
+- `backend/main.ts`: the server; `backend/robot.ts`: its zenoh session; `backend/zero_copy.ts`: the
+  zero-copy demo
+- `icon.svg`: its icon
