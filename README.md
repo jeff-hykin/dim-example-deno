@@ -22,7 +22,7 @@ React + Vite + Deno server that talks zenoh itself ([zenoh-deno](https://github.
 
 ![the whole React page inside Desktop](docs/images/page.png)
 
-## 1. Buikd
+## 1. Build
 
 Run `nix build .#dimosApp`
 
