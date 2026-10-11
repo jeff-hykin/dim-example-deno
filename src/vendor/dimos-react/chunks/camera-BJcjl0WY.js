@@ -9352,12 +9352,13 @@ function choiceGroup(baseClass, { items, value, onChange, variant, size, vertica
 		...rest,
 		children: list.map((item) => {
 			const active = item.value === value;
+			const focusable = active || !list.some((other) => other.value === value) && item === list.find((other) => !other.disabled);
 			return /* @__PURE__ */ jsxs("button", {
 				type: "button",
 				role: "tab",
 				"data-value": item.value,
 				"aria-selected": active,
-				tabIndex: active ? 0 : -1,
+				tabIndex: focusable ? 0 : -1,
 				disabled: item.disabled,
 				title: item.title,
 				className: cx(`${baseClass}__item`, active && `${baseClass}__item--active`),

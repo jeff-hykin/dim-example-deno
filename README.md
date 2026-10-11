@@ -153,7 +153,7 @@ useEffect(() => {
 Every button, input, card, table and toast is a
 [dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into
 `src/vendor/dimos-react/` (its tag and commit are in `src/vendor/dimos-react/VERSION`) so the build
-needs no network: `deno task vendor-dimos-react v0.2.0-beta1` re-vendors it at another tag (it
+needs no network: `deno task vendor-dimos-react v0.2.0-beta2` re-vendors it at another tag (it
 builds the tag: the library build, JS plus types). `AppProvider` follows Desktop's skin, corners and
 insets live, so the page looks like Desktop in every skin with no CSS of its own.
 

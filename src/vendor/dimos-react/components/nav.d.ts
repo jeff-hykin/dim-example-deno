@@ -19,7 +19,8 @@ export interface ChoiceItem<T extends string | number = string> {
 export type ChoiceInput<T extends string | number> = (T & string) | readonly [T, ReactNode?] | readonly NoInfer<T | ReactNode>[] | ChoiceItem<T>;
 export interface TabsProps<T extends string | number = string> extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
     items: readonly ChoiceInput<T>[];
-    value: T;
+    /** null: none selected (e.g. tabs that open a panel, all closed) */
+    value: T | null;
     onChange?: (value: T) => void;
     variant?: "line" | "pill";
     size?: "sm" | "md";

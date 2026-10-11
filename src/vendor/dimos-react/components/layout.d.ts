@@ -1,5 +1,6 @@
-import { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, ElementType, HTMLAttributes, IframeHTMLAttributes, ReactNode } from 'react';
+import { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, ElementType, HTMLAttributes, IframeHTMLAttributes, ReactNode, Ref } from 'react';
 export interface CardProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+    ref?: Ref<HTMLElement>;
     title?: ReactNode;
     description?: ReactNode;
     /** the right side of the header */
