@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import type { DimApp } from "./dim.ts";
-import { useDesktopTheme } from "./theme.ts";
 import { Drive, Odom } from "./sections/Topics.tsx";
 import { Gateway, OtherApp, TalkToDesktop } from "./sections/Calls.tsx";
 import { OwnServer } from "./sections/OwnServer.tsx";
 import { ZeroCopy } from "./sections/ZeroCopy.tsx";
-import styles from "./App.module.css";
+import { Column, Heading, Text } from "./ui.ts";
 
 export function App({ dim }: { dim: DimApp }) {
-  useDesktopTheme();
   const [msgsError, setMsgsError] = useState<string | null>(null);
   const [linkError, setLinkError] = useState<string | null>(null);
   useEffect(() => {
@@ -25,23 +23,28 @@ export function App({ dim }: { dim: DimApp }) {
   const error = msgsError ?? linkError;
 
   return (
-    <div className={styles.page}>
+    <Column
+      gap={14}
+      style={{
+        maxWidth: 760,
+        margin: "0 auto",
+        padding: "16px 16px calc(16px + var(--dim-inset-bottom, 0px))",
+      }}
+    >
       <header>
         {/* inside Desktop, its window bar already names the app */}
-        {parent === self && <h1 className={styles.heading}>dimOS example app</h1>}
-        <p className={styles.subtitle}>
+        {parent === self && <Heading level={1}>dimOS example app</Heading>}
+        <Text muted small tone={error ? "danger" : undefined}>
           a Deno server + a React page{error && ` · ✗ ${error}`}
-        </p>
+        </Text>
       </header>
-      <main>
-        <Odom dim={dim} />
-        <Drive dim={dim} />
-        <Gateway />
-        <OtherApp />
-        <TalkToDesktop />
-        <OwnServer />
-        <ZeroCopy />
-      </main>
-    </div>
+      <Odom dim={dim} />
+      <Drive dim={dim} />
+      <Gateway />
+      <OtherApp />
+      <TalkToDesktop />
+      <OwnServer />
+      <ZeroCopy />
+    </Column>
   );
 }

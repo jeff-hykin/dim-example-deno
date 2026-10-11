@@ -1,9 +1,11 @@
-// Stylesheets first so the module styles imported by App win ties with the page-wide defaults.
-import "./index.css";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.tsx";
 import { connectDimApp } from "./dim.ts";
+import { AppProvider } from "./ui.ts";
 
+// AppProvider: Desktop's skin (followed live), toasts, dialogs, URL state
 createRoot(document.getElementById("root")!).render(
-  <App dim={connectDimApp()} />,
+  <AppProvider>
+    <App dim={connectDimApp()} />
+  </AppProvider>,
 );

@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import type { DimApp, DimPublisher } from "../dim.ts";
 import type { PoseStamped } from "../msgs.ts";
 import { type Pose2d, toPose2d, twist } from "../topics.ts";
-import { Section } from "./Section.tsx";
-import styles from "./Topics.module.css";
+import { Section, TopicInput } from "./Section.tsx";
+import { Button, Row, Stat, Text } from "../ui.ts";
 
 type Props = { dim: DimApp };
 
@@ -35,18 +35,14 @@ export function Odom({ dim }: Props) {
   return (
     <Section
       title="1 · Subscribe to a topic and decode it"
-      note={
-        <>
-          zenoh-gateway → <code>dimos/{topic}/geometry_msgs.PoseStamped</code> → /dimos/msgs.js
-        </>
-      }
+      note={`zenoh-gateway → \`dimos/${topic}/geometry_msgs.PoseStamped\` → /dimos/msgs.js`}
     >
-      <div className={styles.grid}>
-        <Stat label="x" value={pose?.x.toFixed(2)} />
-        <Stat label="y" value={pose?.y.toFixed(2)} />
-        <Stat label="yaw" value={pose && `${pose.yawDegrees.toFixed(0)}°`} />
-        <Stat label="rate" value={hz !== null ? `${hz.toFixed(1)} Hz` : undefined} />
-      </div>
+      <Row gap={28} wrap>
+        <Stat label="x" value={pose ? pose.x.toFixed(2) : "—"} />
+        <Stat label="y" value={pose ? pose.y.toFixed(2) : "—"} />
+        <Stat label="yaw" value={pose ? pose.yawDegrees.toFixed(0) : "—"} unit={pose && "°"} />
+        <Stat label="rate" value={hz !== null ? hz.toFixed(1) : "—"} unit={hz !== null && "Hz"} />
+      </Row>
       <TopicInput value={topic} onChange={setTopic} />
     </Section>
   );
@@ -91,6 +87,7 @@ export function Drive({ dim }: Props) {
     onPointerUp: stop,
     onPointerLeave: stop,
     onPointerCancel: stop,
+    style: { touchAction: "none" },
   });
   function stop() {
     if (driving.current !== undefined) {
@@ -103,46 +100,15 @@ export function Drive({ dim }: Props) {
   return (
     <Section
       title="2 · Publish a topic"
-      note={
-        <>
-          hold a button: a <code>geometry_msgs.Twist</code> at 10 Hz on{" "}
-          <code>dimos/{topic}/geometry_msgs.Twist</code>; nothing is sent until you press; while you
-          drive a zero Twist is armed as the deadman, and the release sends it and disarms
-        </>
-      }
+      note={`hold a button: a \`geometry_msgs.Twist\` at 10 Hz on \`dimos/${topic}/geometry_msgs.Twist\`; nothing is sent until you press; while you drive a zero Twist is armed as the deadman, and the release sends it and disarms`}
     >
-      <div className={styles.row}>
-        <button type="button" className={styles.drive} {...hold(0.3, 0)}>▲ forward</button>
-        <button type="button" className={styles.drive} {...hold(0, 0.6)}>⟲ left</button>
-        <button type="button" className={styles.drive} {...hold(0, -0.6)}>⟳ right</button>
-      </div>
+      <Row wrap>
+        <Button icon="arrow-up" {...hold(0.3, 0)}>forward</Button>
+        <Button icon="rotate-left" {...hold(0, 0.6)}>left</Button>
+        <Button icon="rotate-right" {...hold(0, -0.6)}>right</Button>
+      </Row>
       <TopicInput value={topic} onChange={setTopic} />
-      {sent > 0 && <p className={styles.sent}>sent {sent} Twists</p>}
+      {sent > 0 && <Text muted small>sent {sent} Twists</Text>}
     </Section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className={styles.stat}>
-      <span className={styles.label}>{label}</span>
-      <span className={styles.value}>{value ?? "—"}</span>
-    </div>
-  );
-}
-
-/** A topic name, applied on Enter or blur (re-subscribing on every keystroke would churn the bridge). */
-function TopicInput({ value, onChange }: { value: string; onChange: (topic: string) => void }) {
-  const [draft, setDraft] = useState(value);
-  return (
-    <label className={styles.topic}>
-      topic{" "}
-      <input
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        onBlur={() => onChange(draft.trim())}
-        onKeyDown={(event) => event.key === "Enter" && onChange(draft.trim())}
-      />
-    </label>
   );
 }

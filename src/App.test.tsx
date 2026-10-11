@@ -6,6 +6,7 @@ import { Point, Pose, PoseStamped, Twist } from "@dimos/msgs/geometry_msgs";
 import { App } from "./App.tsx";
 import { DimApp } from "./dim.ts";
 import { msgsStandIn } from "./msgs_stand_in.ts";
+import { AppProvider } from "./ui.ts";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -79,7 +80,11 @@ describe("App", () => {
   async function render(fake: ReturnType<typeof fakeDim>) {
     dim = fake.dim;
     await act(async () => {
-      root.render(<App dim={fake.dim} />);
+      root.render(
+        <AppProvider>
+          <App dim={fake.dim} />
+        </AppProvider>,
+      );
       // the fetches, discovery and the connection settle inside act
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
@@ -91,7 +96,7 @@ describe("App", () => {
     expect(text).toContain('"blueprint": "unitree-go2"');
     expect(text).toContain('"ok": true');
     expect(text).toContain('"shape": "Deno"');
-    expect(container.querySelector("li")?.textContent).toBe("first note");
+    expect(text).toContain("first note");
     expect(document.documentElement.dataset.skin).toBe("portal");
   });
 

@@ -14,11 +14,13 @@ dimos-desktop install github.com/jeff-hykin/dim-example-deno
 
 # This Stack
 
-React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno)
+React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno), with the whole UI from
+[dimos-react](https://github.com/jeff-hykin/dimos-react) (Desktop-themed components, vendored in
+`src/dimos-react/`)
+
 - watch/read/write files
 - efficiently watch zero-copy zenoh topics
 - run background jobs
-
 
 ![the whole React page inside Desktop](docs/images/page.png)
 
@@ -50,8 +52,8 @@ if (app.socket) {
 
 ## Listen to Topics
 
-`backend/robot.ts` connects to zenoh, decodes `/odom` with `@dimos/msgs`, and keeps a
-distance/speed summary.
+`backend/robot.ts` connects to zenoh, decodes `/odom` with `@dimos/msgs`, and keeps a distance/speed
+summary.
 
 ```ts
 const session: Session = await open(new Config(zenohConnect), { zenohVersion: "1.6.2" });
@@ -65,10 +67,12 @@ await session.declareSubscriber("dimos/odom/geometry_msgs.PoseStamped", {
 
 ## Backend informing the Frontend
 
-Typically the frontend calls the backend (http request), but when we want to go in the opposite direction (ex: file watcher) we use zenoh-gateway. We put it on `<zenohPrefix>/frontend/<topic>` reaches every open
-page through Desktop's zenoh-gateway. 
+Typically the frontend calls the backend (http request), but when we want to go in the opposite
+direction (ex: file watcher) we use zenoh-gateway. We put it on `<zenohPrefix>/frontend/<topic>`
+reaches every open page through Desktop's zenoh-gateway.
 
-This allows us to have one connection that is managing bandwidth prioritisation for all backend-to-frontend data. 
+This allows us to have one connection that is managing bandwidth prioritisation for all
+backend-to-frontend data.
 
 ```ts
 const publisher = await session.declarePublisher(`${zenohPrefix}/frontend/odom`);
@@ -144,15 +148,56 @@ useEffect(() => {
 }, [dim, topic]);
 ```
 
-## Look like Desktop in every skin
+## The UI: dimos-react
 
-`src/theme.ts` (copy it as is) follows Desktop's skin, corners and insets:
+Every button, input, card, table and toast is a
+[dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into `src/dimos-react/`
+(its tag and commit are in `src/dimos-react/VERSION`) so the build needs no network:
+`deno task vendor-dimos-react v0.1.10` re-vendors it at another tag. `AppProvider` follows Desktop's
+skin, corners and insets live, so the page looks like Desktop in every skin with no CSS of its own.
 
 ```tsx
-export function App({ dim }: { dim: DimApp }) {
-  useDesktopTheme();
-  // ...
-}
+// src/main.tsx
+createRoot(document.getElementById("root")!).render(
+  <AppProvider>
+    <App dim={connectDimApp()} />
+  </AppProvider>,
+);
+```
+
+```tsx
+// src/sections/Topics.tsx
+<Section
+  title="1 · Subscribe to a topic and decode it"
+  note={`zenoh-gateway → \`dimos/${topic}/...\``}
+>
+  <Row gap={28} wrap>
+    <Stat label="x" value={pose ? pose.x.toFixed(2) : "—"} />
+    <Stat label="yaw" value={pose ? pose.yawDegrees.toFixed(0) : "—"} unit={pose && "°"} />
+  </Row>
+  <TopicInput value={topic} onChange={setTopic} />
+</Section>;
+```
+
+## What the page may do on zenoh: `dimos.yaml` (spec v1.2)
+
+Desktop's zenoh-gateway refuses anything the page does on zenoh that `zenoh:` doesn't allow (zenoh's
+own ACL config):
+
+```yaml
+spec-version: v1.2
+zenoh:
+  default_permission: deny
+  read:
+    - id: odom
+      messages: [declare_subscriber, put] # subscribe, and receive its samples
+      key_exprs: ["dimos/**/geometry_msgs.PoseStamped"]
+      permission: allow
+  write:
+    - id: drive
+      messages: [put] # the cmd_vel publisher and its deadman
+      key_exprs: ["dimos/**/geometry_msgs.Twist"]
+      permission: allow
 ```
 
 ## Develop
@@ -168,7 +213,8 @@ dimos-desktop app check .            # dimos.yaml declares everything it calls
 
 - `dimos.yaml`: the contract with Desktop (what it calls, what it offers)
 - `flake.nix`: `nix build .#dimosApp`
-- `index.html`, `src/`: the page (`src/sections/` is one file per thing it shows)
+- `index.html`, `src/`: the page (`src/sections/` is one file per thing it shows; `src/dimos-react/`
+  the UI library)
 - `backend/main.ts`: the server; `backend/robot.ts`: its zenoh session; `backend/zero_copy.ts`: the
   zero-copy demo
 - `icon.svg`: its icon

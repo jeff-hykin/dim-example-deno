@@ -1,26 +1,32 @@
 import { type ReactNode, useEffect, useState } from "react";
-import styles from "./Section.module.css";
+import { Card, CodeBlock, Column, Field, Markdown, Text, TextInput } from "../ui.ts";
 
+/** A card with a numbered title and a one-line note (markdown: `code` shows as code). */
 export function Section(
-  { title, note, children }: { title: string; note?: ReactNode; children: ReactNode },
+  { title, note, children }: { title: string; note?: string; children: ReactNode },
 ) {
   return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>{title}</h2>
-      {note && <p className={styles.note}>{note}</p>}
-      {children}
-    </section>
+    <Card title={title}>
+      <Column gap={10}>
+        {note && (
+          <Text muted small>
+            <Markdown inline text={note} />
+          </Text>
+        )}
+        {children}
+      </Column>
+    </Card>
   );
 }
 
 /** A value as pretty JSON, or "✗ <message>" for an error. */
 export function Output({ value }: { value: Result }) {
-  const text = value === undefined
+  const code = value === undefined
     ? "…"
     : value instanceof Error
     ? `✗ ${value.message}`
     : JSON.stringify(value, null, 2);
-  return <pre className={styles.output}>{text}</pre>;
+  return <CodeBlock code={code} language="json" maxHeight={160} />;
 }
 
 export type Result = unknown;
@@ -39,4 +45,22 @@ export function useLoad(load: () => Promise<unknown>): Result {
     };
   }, []); // once per mount: `load` is a fresh closure every render
   return value;
+}
+
+/** A topic name, applied on Enter or blur (re-subscribing on every keystroke would churn the bridge). */
+export function TopicInput(
+  { value, onChange }: { value: string; onChange: (topic: string) => void },
+) {
+  const [draft, setDraft] = useState(value);
+  return (
+    <Field label="topic" inline>
+      <TextInput
+        value={draft}
+        mono
+        onChange={setDraft}
+        onEnter={(text: string) => onChange(text.trim())}
+        onBlur={() => onChange(draft.trim())}
+      />
+    </Field>
+  );
 }
