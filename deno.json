@@ -15,14 +15,14 @@
       "icon.svg",
       "dimos.yaml",
       "src/dim-app/",
-      "src/dimos-react/"
+      "src/vendor/dimos-react/"
     ]
   },
   "lint": {
     "exclude": [
       "dist/",
       "src/dim-app/",
-      "src/dimos-react/"
+      "src/vendor/dimos-react/"
     ],
     "rules": {
       "tags": [

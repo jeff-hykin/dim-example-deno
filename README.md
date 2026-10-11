@@ -16,7 +16,7 @@ dimos-desktop install github.com/jeff-hykin/dim-example-deno
 
 React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno), with the whole UI from
 [dimos-react](https://github.com/jeff-hykin/dimos-react) (Desktop-themed components, vendored in
-`src/dimos-react/`)
+`src/vendor/dimos-react/`)
 
 - watch/read/write files
 - efficiently watch zero-copy zenoh topics
@@ -151,11 +151,11 @@ useEffect(() => {
 ## The UI: dimos-react
 
 Every button, input, card, table and toast is a
-[dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into `src/dimos-react/`
-(its tag and commit are in `src/dimos-react/VERSION`) so the build needs no network:
-`deno task vendor-dimos-react v0.2.0-beta1` re-vendors it at another tag (it builds the tag: the
-library build, JS plus types). `AppProvider` follows Desktop's skin, corners and insets live, so the
-page looks like Desktop in every skin with no CSS of its own.
+[dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into
+`src/vendor/dimos-react/` (its tag and commit are in `src/vendor/dimos-react/VERSION`) so the build
+needs no network: `deno task vendor-dimos-react v0.2.0-beta1` re-vendors it at another tag (it
+builds the tag: the library build, JS plus types). `AppProvider` follows Desktop's skin, corners and
+insets live, so the page looks like Desktop in every skin with no CSS of its own.
 
 ```tsx
 // src/main.tsx
@@ -214,8 +214,8 @@ dimos-desktop app check .            # dimos.yaml declares everything it calls
 
 - `dimos.yaml`: the contract with Desktop (what it calls, what it offers)
 - `flake.nix`: `nix build .#dimosApp`
-- `index.html`, `src/`: the page (`src/sections/` is one file per thing it shows; `src/dimos-react/`
-  the UI library)
+- `index.html`, `src/`: the page (`src/sections/` is one file per thing it shows;
+  `src/vendor/dimos-react/` the UI library)
 - `backend/main.ts`: the server; `backend/robot.ts`: its zenoh session; `backend/zero_copy.ts`: the
   zero-copy demo
 - `icon.svg`: its icon
