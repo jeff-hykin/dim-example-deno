@@ -2,7 +2,7 @@
 // through zenoh shared memory. The result is also pushed to every open page on <zenohPrefix>/frontend/zero-copy.
 import { useState } from "react";
 import { postJson } from "../api.ts";
-import { Button, Row, Table, useToast } from "../ui.ts";
+import { Button, Row, Table, type TableColumn, useToast } from "../ui.ts";
 import { Section } from "./Section.tsx";
 
 interface Run {
@@ -14,7 +14,7 @@ interface Run {
   arrivedAsShm: boolean;
 }
 
-const columns = [
+const columns: TableColumn<Run>[] = [
   {
     key: "mode",
     label: "path",
