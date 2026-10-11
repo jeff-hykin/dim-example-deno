@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { DepthImage, DepthLook } from '../camera/depth.ts';
+import { DepthImage, DepthLook } from '../camera/depth_types.ts';
 import { DataSource, Subscription, Topic } from '../data.ts';
 import { Store } from '../three/store.ts';
 /**
