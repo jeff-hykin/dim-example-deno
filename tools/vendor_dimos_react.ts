@@ -1,5 +1,5 @@
 // Vendors dimos-react (github.com/jeff-hykin/dimos-react) into src/vendor/dimos-react at a tag, so the build needs no network:
-//   deno task vendor-dimos-react v0.2.0-beta3
+//   deno task vendor-dimos-react v0.2.0-beta5
 // Builds the tag (its Vite library build: JS plus .d.ts types) and copies dist/, minus the 3D view (three.*: this page
 // has none) and source maps, and the LICENSE.
 import $ from "jsr:@david/dax@0.43.2";
@@ -7,7 +7,7 @@ import { walkSync } from "jsr:@std/fs@1/walk";
 
 const tag = Deno.args[0];
 if (!tag) {
-  throw new Error("usage: deno task vendor-dimos-react <tag, e.g. v0.2.0-beta3>");
+  throw new Error("usage: deno task vendor-dimos-react <tag, e.g. v0.2.0-beta5>");
 }
 const target = $.path(new URL("../src/vendor/dimos-react", import.meta.url));
 const scratch = $.path(await Deno.makeTempDir());

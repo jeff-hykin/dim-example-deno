@@ -2152,6 +2152,22 @@ button.dr-stepper__mark:hover { box-shadow: var(--dr-focus); }
     border-color: var(--ring);
     box-shadow: var(--dr-focus);
 }
+.dr-scene-viewcube {
+    position: absolute;
+    z-index: 3;
+    top: 10px;
+    right: 10px;
+    touch-action: none;
+    filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--bg) 60%, transparent));
+}
+.dr-scene-viewcube--top-left { right: auto; left: 10px; }
+.dr-scene-viewcube--bottom-right { top: auto; bottom: calc(10px + var(--dim-inset-bottom, 0px)); }
+.dr-scene-viewcube--bottom-left {
+    top: auto;
+    right: auto;
+    left: 10px;
+    bottom: calc(10px + var(--dim-inset-bottom, 0px));
+}
 .dr-scene-stats {
     position: absolute;
     z-index: 2;
@@ -3124,7 +3140,7 @@ var AppZenoh = class {
 			if (!response.ok) throw new Error(`GET ${discovery.pathname}: HTTP ${response.status}`);
 			return await response.json();
 		});
-		const connect = this.#options.connect ?? (await import("./zenoh_gateway-BVI3DSS1.js")).connect;
+		const connect = this.#options.connect ?? (await import("./zenoh_gateway-BQgJ0h4l.js")).connect;
 		const gateway = this.#options.zenohGatewayUrl ?? this.info.zenohGatewayUrl ?? "/zenoh-gateway";
 		const url = /^[a-z]+:\/\//i.test(gateway) ? gateway : new URL(gateway.replace(/^\/+/, ""), this.base).href;
 		this.client = await this.#retry("connecting to zenoh-gateway", () => connect(url, this.#options.connectOptions ?? {}));
