@@ -86,7 +86,7 @@ const json = (value: unknown, status = 200) =>
 async function api(request: Request, path: string): Promise<Response | null> {
   const route = `${request.method} ${path}`;
   if (route === "GET /api/hello") {
-    const { launch } = await desktop("GET", "/dimos/runs").catch(() => ({ launch: null }));
+    const { launch } = await desktop("GET", "/dimos-gateway/runs").catch(() => ({ launch: null }));
     return json({
       shape: "Deno",
       app: app.name ?? "dim-example-deno (outside Desktop)",

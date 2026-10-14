@@ -35,7 +35,7 @@ export function Odom({ dim }: Props) {
   return (
     <Section
       title="1 · Subscribe to a topic and decode it"
-      note={`zenoh-gateway → \`dimos/${topic}/geometry_msgs.PoseStamped\` → /dimos/msgs.js`}
+      note={`zenoh-gateway → \`dimos/${topic}/geometry_msgs.PoseStamped\` → /dimos-gateway/msgs.js`}
     >
       <Row gap={28} wrap>
         <Stat label="x" value={pose ? pose.x.toFixed(2) : "—"} />

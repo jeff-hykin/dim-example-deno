@@ -10,7 +10,7 @@ export function App({ dim }: { dim: DimApp }) {
   const [msgsError, setMsgsError] = useState<string | null>(null);
   const [linkError, setLinkError] = useState<string | null>(null);
   useEffect(() => {
-    dim.msgsReady.then((msgs) => setMsgsError(msgs ? null : "no /dimos/msgs.js"));
+    dim.msgsReady.then((msgs) => setMsgsError(msgs ? null : "no /dimos-gateway/msgs.js"));
   }, [dim]);
   // DimApp reconnects by itself; say so while the link is down
   useEffect(

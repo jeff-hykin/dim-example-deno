@@ -9,12 +9,12 @@ interface Runs {
 
 export function Gateway() {
   const runs = useLoad(() =>
-    json<Runs>("../../dimos/runs").then(({ launch }) =>
+    json<Runs>("../../dimos-gateway/runs").then(({ launch }) =>
       launch ? { blueprint: launch.blueprint, phase: launch.phase } : "nothing launched yet"
     )
   );
   return (
-    <Section title="3 · Call the dimos gateway" note="`GET /dimos/runs`: what's running">
+    <Section title="3 · Call the dimos gateway" note="`GET /dimos-gateway/runs`: what's running">
       <Output value={runs} />
     </Section>
   );
