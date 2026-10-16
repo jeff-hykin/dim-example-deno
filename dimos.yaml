@@ -24,18 +24,28 @@ zenoh:
           key_exprs: ["dimos/**/geometry_msgs.Twist"]
           permission: allow
 provides:
+    when: you want to see what dimos runs, or leave the person a note, via the Deno example
     description: "Example (Deno): a showcase dimOS app; it keeps a list of notes"
     endpoints:
         - method: GET
           path: api/hello
-          description: Who this app is, what dimos is running right now, and how many notes it holds
+          when: you need to know what dimos runs now, or how many notes the Deno example holds
+          description: >-
+              Who this app is and what dimos is running. Takes nothing; answers JSON: shape ("Deno"), app (its name),
+              time (now, ISO 8601), running ("<blueprint> (<phase>)" of the dimos gateway's current launch, or null
+              when nothing runs), notes (how many notes it holds) and odom (the robot's odometry summary off zenoh:
+              messages, meters driven, speed in m/s, x and y; null without zenoh)
           role: context
         - method: POST
           path: api/notes
-          description: Add a note to the app's list (the person gets a notification)
+          when: you want to leave the person a note in the Deno example app
+          description: >-
+              Add a note to the end of the app's list (kept in its data folder) and show the person a Desktop
+              notification ("A note from the agent") with it. Body: JSON {"text": "..."}. Answers {"notes": [...]},
+              the whole list after it; an empty text gets 400 {"error": ...}
           params:
               text:
                   type: string
-                  description: the note
+                  description: the note's text (trimmed; must not be empty)
     private:
         - api/internal/*
