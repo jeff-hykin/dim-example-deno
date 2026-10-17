@@ -40,11 +40,18 @@ export function BarChart(
               rx={3}
               fill={color ?? palette[i % palette.length]}
             />
-            <text x={x + band * 0.35} y={plot - h - 2} textAnchor="middle" style={{ ...text, fill: "var(--fg)" }}>
+            <text
+              x={x + band * 0.35}
+              y={plot - h - 2}
+              textAnchor="middle"
+              style={{ ...text, fill: "var(--fg)" }}
+            >
               {d.value}
               {unit}
             </text>
-            <text x={x + band * 0.35} y={height - 8} textAnchor="middle" style={text}>{d.label}</text>
+            <text x={x + band * 0.35} y={height - 8} textAnchor="middle" style={text}>
+              {d.label}
+            </text>
           </g>
         );
       })}
@@ -66,7 +73,9 @@ export function LineChart(
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
   const plot = height - 34;
-  const x = (i: number) => (data.length < 2 ? width / 2 : (i / (data.length - 1)) * (width - 40) + 20);
+  const x = (
+    i: number,
+  ) => (data.length < 2 ? width / 2 : (i / (data.length - 1)) * (width - 40) + 20);
   const y = (v: number) => plot + 4 - ((v - min) / (max - min || 1)) * (plot - 14);
   const points = data.map((d, i) => `${x(i)},${y(d.value)}`).join(" ");
   return (
@@ -76,7 +85,12 @@ export function LineChart(
       {data.map((d, i) => (
         <g key={i}>
           <circle cx={x(i)} cy={y(d.value)} r={3} fill={color} />
-          <text x={x(i)} y={y(d.value) - 8} textAnchor="middle" style={{ ...text, fill: "var(--fg)" }}>
+          <text
+            x={x(i)}
+            y={y(d.value) - 8}
+            textAnchor="middle"
+            style={{ ...text, fill: "var(--fg)" }}
+          >
             {d.value}
             {unit}
           </text>
