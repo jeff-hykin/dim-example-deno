@@ -1,7 +1,7 @@
 # Notes for agents
 
-If you're making edits, see [docs/fast_edit.md](docs/fast_edit.md): in edit mode an edit hot-loads
-into the open page in about a second, so make it and stop (no build, test, reload or screenshot).
+If you're making edits, see [docs/fast_edit.md](docs/fast_edit.md): Desktop shows a saved edit in
+the open page within seconds by itself, so make it and stop (no build, test, reload or screenshot).
 
 ## Quick recipes: one edit each, no reading around
 

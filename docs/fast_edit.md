@@ -1,10 +1,14 @@
 # Fast edits: hot-loading
 
-In edit mode, Desktop serves this app's page from a Vite dev server instead of its build. A saved
-edit appears in the open page in about a second. There is no build, no reload, and the page keeps
-its state: typed text, open panels, a live connection. Turn it on with `run/dev app <name>` in
-Desktop's repo. It works through Desktop's own port, so a phone or another computer watching the
-robot's Desktop sees the edit as well.
+Desktop watches this app's source. When a file changes, Desktop starts the app's Vite dev server
+and serves the page from it instead of the build: the first edit reloads the open page once (a few
+seconds), and every edit after that appears in about a second with no reload, keeping the page's
+state (typed text, open panels, a live connection). There's nothing to turn on. About 10 minutes
+after the last edit, Desktop builds the app with the edits, restarts its server on that build and
+stops the dev server. It works through Desktop's own port, so a phone or another computer watching
+the robot's Desktop sees the edit as well. Details: Desktop's docs/promptable_ui.md.
+
+An edit under `backend/` doesn't hot-load: it's in the build Desktop makes once edits stop.
 
 **For agents.** Make the smallest edit that does it: the edit tool, not a rewrite of the whole file.
 Then stop. Don't build, run tests, restart anything, reload the page or take a screenshot to check:
