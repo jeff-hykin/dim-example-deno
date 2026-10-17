@@ -4,6 +4,7 @@ import { Drive, Odom } from "./sections/Topics.tsx";
 import { Gateway, OtherApp, TalkToDesktop } from "./sections/Calls.tsx";
 import { OwnServer } from "./sections/OwnServer.tsx";
 import { ZeroCopy } from "./sections/ZeroCopy.tsx";
+import { Slots } from "./Slots.tsx";
 import { Column, Heading, Text } from "./ui.ts";
 
 export function App({ dim }: { dim: DimApp }) {
@@ -38,6 +39,7 @@ export function App({ dim }: { dim: DimApp }) {
           a Deno server + a React page{error && ` · ✗ ${error}`}
         </Text>
       </header>
+      <Slots />
       <Odom dim={dim} />
       <Drive dim={dim} />
       <Gateway />
