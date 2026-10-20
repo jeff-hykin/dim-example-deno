@@ -1,6 +1,6 @@
 # the app's contract with Desktop: https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md
 title: Example (Deno)
-spec-version: v1.2
+spec-version: v1.3
 uses:
     "@dimos-gateway":
         - GET /runs
@@ -23,29 +23,39 @@ zenoh:
           messages: [put] # the cmd_vel publisher and its deadman
           key_exprs: ["dimos/**/geometry_msgs.Twist"]
           permission: allow
+# what the agent and other apps may call: an OpenAPI 3.1 document, its paths relative to the app
 provides:
-    when: you want to see what dimos runs, or leave the person a note, via the Deno example
-    description: "Example (Deno): a showcase dimOS app; it keeps a list of notes"
-    endpoints:
-        - method: GET
-          path: api/hello
-          when: you need to know what dimos runs now, or how many notes the Deno example holds
-          description: >-
-              Who this app is and what dimos is running. Takes nothing; answers JSON: shape ("Deno"), app (its name),
-              time (now, ISO 8601), running ("<blueprint> (<phase>)" of the dimos gateway's current launch, or null
-              when nothing runs), notes (how many notes it holds) and odom (the robot's odometry summary off zenoh:
-              messages, meters driven, speed in m/s, x and y; null without zenoh)
-          role: context
-        - method: POST
-          path: api/notes
-          when: you want to leave the person a note in the Deno example app
-          description: >-
-              Add a note to the end of the app's list (kept in its data folder) and show the person a Desktop
-              notification ("A note from the agent") with it. Body: JSON {"text": "..."}. Answers {"notes": [...]},
-              the whole list after it; an empty text gets 400 {"error": ...}
-          params:
-              text:
-                  type: string
-                  description: the note's text (trimmed; must not be empty)
-    private:
+    openapi: 3.1.0
+    info:
+        title: Example (Deno)
+        version: 1.0.0 # this API's version: major = breaking, minor = added
+        description: 'Example (Deno): a showcase dimOS app; it keeps a list of notes'
+        x-when: you want to see what dimos runs, or leave the person a note, via the Deno example
+    x-private: # paths only this app's own pages may call
         - api/internal/*
+    paths:
+        /api/hello:
+            get:
+                description: >-
+                    Who this app is and what dimos is running. Takes nothing; answers JSON: shape ("Deno"), app (its name),
+                    time (now, ISO 8601), running ("<blueprint> (<phase>)" of the dimos gateway's current launch, or null
+                    when nothing runs), notes (how many notes it holds) and odom (the robot's odometry summary off zenoh:
+                    messages, meters driven, speed in m/s, x and y; null without zenoh)
+                x-when: you need to know what dimos runs now, or how many notes the Deno example holds
+                x-dimos-role: context # added to the agent's desktop_context() while the app is focused
+        /api/notes:
+            post:
+                description: >-
+                    Add a note to the end of the app's list (kept in its data folder) and show the person a Desktop notification
+                    ("A note from the agent") with it. Body: JSON {"text": "..."}. Answers {"notes": [...]}, the whole list
+                    after it; an empty text gets 400 {"error": ...}
+                x-when: you want to leave the person a note in the Deno example app
+                requestBody: # JSON Schema
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    text:
+                                        type: string
+                                        description: the note's text (trimmed; must not be empty)

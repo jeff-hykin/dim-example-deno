@@ -93,18 +93,29 @@ if (route === "GET /api/hello") {
 }
 ```
 
+`provides:` is an OpenAPI 3.1 document (dimos.yaml spec v1.3):
+
 ```yaml
 provides:
-  endpoints:
-    - method: GET
-      path: api/hello
-      description: Who this app is, what dimos is running right now, and how many notes it holds
-      role: context
-    - method: POST
-      path: api/notes
-      description: Add a note to the app's list (the person gets a notification)
-  private:
+  openapi: 3.1.0
+  info: { title: Example (Deno), version: 1.0.0 }
+  x-private: # only this app's own pages may call these
     - api/internal/*
+  paths:
+    /api/hello:
+      get:
+        summary: Who this app is, what dimos is running right now, and how many notes it holds
+        x-dimos-role: context # in the agent's context while the app is focused
+    /api/notes:
+      post:
+        summary: Add a note to the app's list (the person gets a notification)
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text: { type: string, description: the note }
 ```
 
 ![api/hello with the server's odom summary](docs/images/own-server.png)
@@ -186,7 +197,7 @@ Desktop's zenoh-gateway refuses anything the page does on zenoh that `zenoh:` do
 own ACL config):
 
 ```yaml
-spec-version: v1.2
+spec-version: v1.3
 zenoh:
   default_permission: deny
   read:
