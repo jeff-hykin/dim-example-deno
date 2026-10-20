@@ -63,7 +63,7 @@
                         dontFixup = true;
                         outputHashMode = "recursive";
                         outputHashAlgo = "sha256";
-                        outputHash = "sha256-ETEIfNndYne9wJyfDepVal42UpGyzItJ4uaO1Zi+mgE=";
+                        outputHash = "sha256-j2zVKwiZDyIPKkp9TNkwg9m7WEHOBfiOQ6LHWCgd4C8=";
                     };
                     zenohDeno = pkgs.runCommand "zenoh-deno-${zenohDenoRelease.version}" { } ''
                         mkdir $out
