@@ -1,6 +1,6 @@
-import { DepthImage, DepthLook } from './depth_types.ts';
+import { DepthImage, DepthLook } from './depth_types.d.ts';
 import * as THREE from "three";
-export type { DepthImage, DepthLook, DepthPixels } from './depth_types.ts';
+export type { DepthImage, DepthLook, DepthPixels } from './depth_types.d.ts';
 /** Tracks the automatic range (2nd–98th percentile of valid depth, eased) so it doesn't flicker frame to frame. */
 export declare class DepthRange {
     #private;

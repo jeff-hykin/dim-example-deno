@@ -1,8 +1,8 @@
 import { ComponentProps, ReactNode } from 'react';
-import { DimThemeProviderProps } from './theme/provider.tsx';
-import { DataSource } from './data.ts';
-import { UrlStateProviderProps } from './url_state.tsx';
-import { ToastProvider } from './components/feedback.tsx';
+import { DimThemeProviderProps } from './theme/provider.d.ts';
+import { DataSource } from './data.d.ts';
+import { UrlStateProviderProps } from './url_state.d.ts';
+import { ToastProvider } from './components/feedback.d.ts';
 export interface AppProviderProps {
     /** DimThemeProvider props (skin, corners, themeUrl…) */
     theme?: Omit<DimThemeProviderProps, "children">;

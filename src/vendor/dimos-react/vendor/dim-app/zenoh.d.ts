@@ -1,6 +1,6 @@
-import { Lease, LeaseOptions, ZenohGateway } from './vendor/zenoh-gateway/zenoh_gateway.js';
+import { Lease, LeaseOptions, ZenohGateway } from './vendor/zenoh-gateway/zenoh_gateway.d.ts';
 // Hand-written types for the vendored zenoh.js (the parts dimos-react uses).
-export { checkTopic } from './topic.js'
+export { checkTopic } from './topic.d.ts'
 
 export type { Lease, LeaseOptions }
 

@@ -1,5 +1,5 @@
 import { SVGAttributes } from 'react';
-import { ICONS } from '../icons_data.ts';
+import { ICONS } from '../icons_data.d.ts';
 export { ICONS };
 export interface IconProps extends Omit<SVGAttributes<SVGSVGElement>, "name" | "path"> {
     /** a key of ICONS */

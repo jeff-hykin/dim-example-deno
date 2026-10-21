@@ -1,4 +1,4 @@
-import { SKINS } from './tokens.ts';
+import { SKINS } from './tokens.d.ts';
 export { SKINS };
 export declare const SKIN_KEY = "portal.theme";
 export declare const CORNERS_KEY = "portal.corners";

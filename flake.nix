@@ -6,13 +6,14 @@
         let
             systems = [ "aarch64-darwin" "x86_64-darwin" "x86_64-linux" "aarch64-linux" ];
             forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
-            # node_modules' hash, per system: npm's native packages (rollup, esbuild) differ by OS and CPU.
-            # After changing package.json / deno.lock: set the system's hash to "", run `nix build .#nodeModules`, paste the "got:" hash.
+            # node_modules' hash, per system: the npm packages' native parts (rollup, esbuild) differ by OS and CPU.
+            # After changing deno.json's imports or deno.lock: `deno task update-hashes` (this machine's system; the others
+            # the same way on a machine of that system, or set it to "" and take the "got:" from CI's nix job).
             nodeModulesHash = {
-                aarch64-darwin = "sha256-ifUNFnq/7voD1xgcIHnituBJUb47zwiQj3+4PFrwY6w=";
-                x86_64-darwin = "sha256-ZcmKHTuHq6igocKkxtEPKxiV36FT8sTDGca7uZ8fKvs=";
-                x86_64-linux = "sha256-HdjOTxYuOXY/V3lWtz1eSlls+/uhXUAEvXBpzG0vMGY=";
-                aarch64-linux = "sha256-tCuxiMf26LGn1z+53TRDF4Y0k/Jj71i6TdsWOfbREuY=";
+                aarch64-darwin = "sha256-J0KKYYKhyCaJGFoQ/O3H858aaT8Zf2GBloEG7Zso8VY=";
+                x86_64-darwin = "sha256-2cu/Y/HkG7QkP16cscj+Z9XHQi1zl34KOuXW0MfWos4=";
+                x86_64-linux = "sha256-oHzuczKMq2F1Pfk7TQd9OK8qI54TjN9fPOCCaEkoLOw=";
+                aarch64-linux = "";
             };
             denoEnv = "export HOME=$TMPDIR DENO_DIR=$TMPDIR/deno DENO_NO_UPDATE_CHECK=1 DENO_NO_PROMPT=1";
             # zenoh-deno from its release tarball: the module plus every platform's native library, loaded from beside
@@ -27,9 +28,9 @@
             packages = forAll (pkgs:
                 let
                     files = paths: pkgs.lib.fileset.toSource { root = ./.; fileset = pkgs.lib.fileset.unions paths; };
-                    npmFiles = [ ./package.json ./deno.json ./deno.lock ./.npmrc ];
+                    npmFiles = [ ./deno.json ./deno.lock ];
                 in rec {
-                    # `deno install --frozen`: the only derivation with network, so fixed-output (deno.lock pins every package)
+                    # `deno install --frozen` of deno.json's imports (deno.lock pins every package): with network, so fixed-output
                     nodeModules = pkgs.stdenvNoCC.mkDerivation {
                         name = "dim-example-deno-node-modules";
                         src = files npmFiles;
@@ -48,7 +49,7 @@
                         outputHash = nodeModulesHash.${pkgs.stdenv.hostPlatform.system};
                     };
                     # the server's jsr dependencies (backend/deno.json `vendor: true`): fixed-output, the same on every system.
-                    # After changing backend/deno.json or backend/deno.lock: set this to "", `nix build .#backendVendor`, paste the "got:".
+                    # After changing backend/deno.json or backend/deno.lock: `deno task update-hashes`.
                     backendVendor = pkgs.stdenvNoCC.mkDerivation {
                         name = "dim-example-deno-backend-vendor";
                         src = files [ ./backend/deno.json ./backend/deno.lock ];
@@ -81,7 +82,7 @@
                     # the page: `deno task build` (vite) against that node_modules, offline
                     frontend = pkgs.stdenvNoCC.mkDerivation {
                         name = "dim-example-deno-frontend";
-                        src = files (npmFiles ++ [ ./index.html ./vite.config.ts ./tsconfig.json ./src ]);
+                        src = files (npmFiles ++ [ ./index.html ./vite.config.ts ./tools/jsr_from_esm_sh.ts ./src ]);
                         nativeBuildInputs = [ pkgs.deno ];
                         buildPhase = ''
                             ${denoEnv}

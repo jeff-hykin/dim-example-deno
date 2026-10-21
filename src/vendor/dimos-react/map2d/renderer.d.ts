@@ -1,7 +1,7 @@
-import { DataSource, Topic } from '../data.ts';
+import { DataSource, Topic } from '../data.d.ts';
 import { poseMatrix } from '../three/layers/pose.tsx';
 import { TfTree } from '../three/tf.ts';
-import { MapView } from './math.ts';
+import { MapView } from './math.d.ts';
 /** A decoded OccupancyGrid, as the map keeps it. */
 interface GridData {
     width: number;

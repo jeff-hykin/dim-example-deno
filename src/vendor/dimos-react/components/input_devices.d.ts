@@ -1,5 +1,5 @@
 import { CSSProperties, HTMLAttributes, ReactNode, SVGAttributes } from 'react';
-import { StickValue } from './thumbstick.tsx';
+import { StickValue } from './thumbstick.d.ts';
 /** Pointer offset from a circle's center → stick value in -1..1 (y up), clamped to the unit circle. */
 export declare function stickValue(dx: number, dy: number, radius: number): StickValue;
 export interface JoystickProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {

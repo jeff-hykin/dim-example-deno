@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode, Ref } from 'react';
-import { Box, LayoutId, Link, Placement } from './layout.ts';
-import { Placed } from './paths.ts';
+import { Box, LayoutId, Link, Placement } from './layout.d.ts';
+import { Placed } from './paths.d.ts';
 export interface GraphViewHandle {
     zoom(factor: number, cx?: number, cy?: number): void;
     /** Fit the whole graph in view (and follow resizes again until the user moves it). */

@@ -1,8 +1,8 @@
 import { CSSProperties, ReactNode } from 'react';
-import { Topic } from '../data.ts';
+import { Topic } from '../data.d.ts';
 import { TfTree } from '../three/tf.ts';
-import { Map2DRenderer, Map2DFollowState, Map2DPick, Map2DStatus } from './renderer.ts';
-import { MapView } from './math.ts';
+import { Map2DRenderer, Map2DFollowState, Map2DPick, Map2DStatus } from './renderer.d.ts';
+import { MapView } from './math.d.ts';
 export interface Map2DProps {
     tf: TfTree;
     /** the base map (OccupancyGrid, or a PointCloud2 drawn as a height heatmap) */

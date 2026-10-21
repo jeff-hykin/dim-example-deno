@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
-import { GraphViewHandle } from './graph_view.tsx';
-import { LayoutId } from './layout.ts';
+import { GraphViewHandle } from './graph_view.d.ts';
+import { LayoutId } from './layout.d.ts';
 /** A module's stream, as the gateway describes it. */
 export interface BlueprintStream {
     name: string;

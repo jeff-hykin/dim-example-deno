@@ -1,4 +1,4 @@
-import { Box, Point } from './layout.ts';
+import { Box, Point } from './layout.d.ts';
 export type Placed = Box & Point;
 /** From the right (bottom, when vertical) of `from` to the left (top) of `to`, along the bends a layered layout gave. */
 export declare function flowPath(from: Placed, to: Placed, bends: Point[], vertical: boolean, port?: number): string;

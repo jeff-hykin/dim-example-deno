@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { DataSource } from './data.ts';
+import { DataSource } from './data.d.ts';
 /** Where the params live: the query string ("search") or the hash ("hash": #a=1&b=2). */
 export type UrlMode = "search" | "hash";
 /** The URL's params as a plain object of strings. */

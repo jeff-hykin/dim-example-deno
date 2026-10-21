@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AppZenoh, ConnectionState, GetZenohOptions } from './vendor/dim-app/zenoh.js';
+import { AppZenoh, ConnectionState, GetZenohOptions } from './vendor/dim-app/zenoh.d.ts';
 export type { AppZenoh };
 /** A source's connection state: "connecting" | "connected" | "degraded" | "lost". */
 export type SourceState = ConnectionState;

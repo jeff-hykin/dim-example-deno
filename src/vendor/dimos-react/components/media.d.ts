@@ -1,5 +1,5 @@
 import { ComponentProps, CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { Menu } from './nav.tsx';
+import { Menu } from './nav.d.ts';
 export declare const DEPTH_COLORMAPS: string[];
 /** Raw depth units → meters: 32FC1 is meters, 16UC1 (and mono16) millimetres. */
 export declare const depthScale: (encoding: string) => number;

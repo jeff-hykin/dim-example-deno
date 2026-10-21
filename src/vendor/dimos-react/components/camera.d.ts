@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { DepthImage, DepthLook } from '../camera/depth_types.ts';
-import { DataSource, Subscription, Topic } from '../data.ts';
+import { DepthImage, DepthLook } from '../camera/depth_types.d.ts';
+import { DataSource, Subscription, Topic } from '../data.d.ts';
 import { Store } from '../three/store.ts';
 /**
  * No preset sets maxHz: zenoh-gateway >= 0.5.1 encodes at min(maxHz, the source's rate), and each wants the camera's

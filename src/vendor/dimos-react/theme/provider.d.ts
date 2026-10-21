@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Corners, ThemeColors } from './theme.ts';
+import { Corners, ThemeColors } from './theme.d.ts';
 /** What useTheme() gives: the skin and corners in effect, what they look like, and per-page setters. */
 export interface ThemeContextValue {
     skin: string;

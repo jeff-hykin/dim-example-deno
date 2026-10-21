@@ -1,4 +1,4 @@
-import { Topic } from '../data.ts';
+import { Topic } from '../data.d.ts';
 /** Where the map is looking: the world point at the canvas center and the zoom (meters per CSS pixel). */
 export interface MapView {
     centerX: number;

@@ -1,5 +1,5 @@
 import { HTMLAttributes, ReactNode } from 'react';
-import { SettingField } from '../settings.ts';
+import { SettingField } from '../settings.d.ts';
 export interface SettingInputProps {
     field: SettingField;
     value: unknown;

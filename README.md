@@ -28,6 +28,14 @@ React + Vite + Deno + [zenoh-deno](https://github.com/jeff-hykin/zenoh-deno), wi
 
 Run `nix build .#dimosApp`
 
+There is no npm here: `deno.json` holds every dependency (`npm:` and `jsr:` imports) and task, and
+`deno.lock` pins them. Vite and Vitest run through deno (`deno task build`, `deno task test`),
+`deno check` typechecks, and Vite gets the tests' `jsr:` package (`@dimos/msgs`) from esm.sh
+(`tools/jsr_from_esm_sh.ts`). The flake builds the page offline: `deno install --frozen` is a
+fixed-output derivation (one hash per system, since rollup's and esbuild's native parts differ), and
+Vite runs against that `node_modules` with `--cached-only`. After changing `deno.json`'s imports or
+`deno.lock`, `deno task update-hashes` refreshes this machine's hash in `flake.nix`.
+
 ## 2. Server reads `DIMOS_APP` for the socket address
 
 `backend/main.ts`:
@@ -165,8 +173,8 @@ Every button, input, card, table and toast is a
 [dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into
 `src/vendor/dimos-react/` (its tag and commit are in `src/vendor/dimos-react/VERSION`) so the build
 needs no network: `deno task vendor-dimos-react v0.2.0-beta5` re-vendors it at another tag (it
-builds the tag: the library build, JS plus types). `AppProvider` follows Desktop's skin, corners and
-insets live, so the page looks like Desktop in every skin with no CSS of its own.
+builds the tag with deno: the library build, JS plus types). `AppProvider` follows Desktop's skin,
+corners and insets live, so the page looks like Desktop in every skin with no CSS of its own.
 
 ```tsx
 // src/main.tsx

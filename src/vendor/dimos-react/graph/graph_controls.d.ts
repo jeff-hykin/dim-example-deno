@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
-import { GraphViewHandle } from './graph_view.tsx';
-import { LayoutId } from './layout.ts';
+import { GraphViewHandle } from './graph_view.d.ts';
+import { LayoutId } from './layout.d.ts';
 export interface GraphControlsProps {
     /** the GraphView's ref */
     graph: RefObject<GraphViewHandle | null>;
