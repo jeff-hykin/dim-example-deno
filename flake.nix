@@ -13,7 +13,7 @@
                 aarch64-darwin = "sha256-J0KKYYKhyCaJGFoQ/O3H858aaT8Zf2GBloEG7Zso8VY=";
                 x86_64-darwin = "sha256-2cu/Y/HkG7QkP16cscj+Z9XHQi1zl34KOuXW0MfWos4=";
                 x86_64-linux = "sha256-oHzuczKMq2F1Pfk7TQd9OK8qI54TjN9fPOCCaEkoLOw=";
-                aarch64-linux = "";
+                aarch64-linux = "sha256-rqUU+FY7mX3j7FQmDp0AleYekbLcOOVrhJGN4uuZXBI=";
             };
             denoEnv = "export HOME=$TMPDIR DENO_DIR=$TMPDIR/deno DENO_NO_UPDATE_CHECK=1 DENO_NO_PROMPT=1";
             # zenoh-deno from its release tarball: the module plus every platform's native library, loaded from beside

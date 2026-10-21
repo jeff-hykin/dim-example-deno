@@ -2,7 +2,6 @@
 // ./dim-app (dim-app's tools/vendor.js), so nothing loads from the network. DimApp holds the page's one zenoh-gateway
 // connection and the dimos gateway's codec GET /dimos-gateway/msgs.js (dimos.yaml `@dimos-gateway`), generated from the dimos
 // that's running, so it always matches it: subscribe() hands over decoded messages, publish()/publisher() encode.
-// deno-lint-ignore no-sloppy-imports -- the .js is the module; its .d.ts beside it is only its types
 // @ts-types="./dim-app/source/dim_app.d.ts"
 import { DimApp } from "./dim-app/source/dim_app.js";
 
