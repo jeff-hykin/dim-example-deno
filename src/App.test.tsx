@@ -46,7 +46,11 @@ function fakeDim() {
 }
 
 const answers: Record<string, unknown> = {
-  "../../dimos-gateway/runs": { launch: { blueprint: "unitree-go2", phase: "running" } },
+  "../../dimos-gateway/active": {
+    running: true,
+    blueprint: "unitree-go2",
+    launch: { blueprint: "unitree-go2", phase: "running" },
+  },
   "../../apps/dim-controller/api/status": { ok: true },
   "api/hello": { shape: "Deno", notes: 1 },
   "api/internal/notes": { notes: ["first note"] },

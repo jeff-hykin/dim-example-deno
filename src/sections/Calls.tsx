@@ -3,18 +3,25 @@ import { json, postJson } from "../api.ts";
 import { Button, Row, useToast } from "../ui.ts";
 import { Output, Section, useLoad } from "./Section.tsx";
 
-interface Runs {
+/** GET /dimos-gateway/active: the running blueprint, and the gateway's last launch */
+interface Active {
+  running: boolean;
+  blueprint: string | null;
   launch: { blueprint: string; phase: string } | null;
 }
 
 export function Gateway() {
   const runs = useLoad(() =>
-    json<Runs>("../../dimos-gateway/runs").then(({ launch }) =>
-      launch ? { blueprint: launch.blueprint, phase: launch.phase } : "nothing launched yet"
+    json<Active>("../../dimos-gateway/active").then(({ running, blueprint, launch }) =>
+      running
+        ? { blueprint, phase: launch?.phase ?? "running" }
+        : launch
+        ? { blueprint: launch.blueprint, phase: launch.phase }
+        : "nothing launched yet"
     )
   );
   return (
-    <Section title="3 · Call the dimos gateway" note="`GET /dimos-gateway/runs`: what's running">
+    <Section title="3 · Call the dimos gateway" note="`GET /dimos-gateway/active`: what's running">
       <Output value={runs} />
     </Section>
   );

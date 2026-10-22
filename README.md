@@ -91,7 +91,7 @@ const timer = setInterval(() => publisher.put(JSON.stringify(summary)).catch(() 
 
 ```ts
 if (route === "GET /api/hello") {
-  const { launch } = await desktop("GET", "/dimos-gateway/runs").catch(() => ({ launch: null }));
+  const { launch } = await desktop("GET", "/dimos-gateway/active").catch(() => ({ launch: null }));
   return json({
     shape: "Deno",
     running: launch ? `${launch.blueprint} (${launch.phase})` : null,
