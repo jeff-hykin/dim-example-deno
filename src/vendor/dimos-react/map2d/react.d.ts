@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
 import { Topic } from '../data.d.ts';
-import { TfTree } from '../three/tf.ts';
+import { TfTree } from '../three/tf.d.ts';
 import { Map2DRenderer, Map2DFollowState, Map2DPick, Map2DStatus } from './renderer.d.ts';
 import { MapView } from './math.d.ts';
 export interface Map2DProps {

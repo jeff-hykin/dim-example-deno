@@ -28,4 +28,4 @@ export type { Palette, RampStop, Rgb } from './colormaps.d.ts';
 export * from './components/view_panel.d.ts';
 export * from './components/thumbstick.d.ts';
 export * from './components/camera.d.ts';
-export { Store, useStore } from './three/store.ts';
+export { Store, useStore } from './three/store.d.ts';

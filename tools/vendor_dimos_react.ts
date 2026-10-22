@@ -1,8 +1,9 @@
 // Vendors dimos-react (github.com/jeff-hykin/dimos-react) into src/vendor/dimos-react at a tag, so the build needs no network:
 //   deno task vendor-dimos-react v0.2.0-beta5
 // Builds the tag with deno (its Vite library build: JS plus .d.ts types) and copies dist/, minus the 3D view (three.*:
-// this page has none) and source maps, and the LICENSE. The .d.ts files' relative imports name their .d.ts siblings, so
-// `deno check` reads the types (vite-plugin-dts writes the source's .ts/.tsx paths, which only tsc maps to .d.ts).
+// this page has none, but the three/ types the rest imports stay) and source maps, and the LICENSE. The .d.ts files'
+// relative imports name their .d.ts siblings, so `deno check` reads the types (vite-plugin-dts writes the source's
+// .ts/.tsx paths, which only tsc maps to .d.ts).
 import $ from "jsr:@david/dax@0.43.2";
 import { walkSync } from "jsr:@std/fs@1/walk";
 
@@ -28,9 +29,8 @@ await target.remove({ recursive: true }).catch(() => {});
 await target.parentOrThrow().mkdir({ recursive: true });
 await $`cp -R ${scratch.join("dist")} ${target}`;
 await scratch.join("LICENSE").copyFile(target.join("LICENSE"));
-for (const extra of ["three.js", "three.d.ts", "three"]) {
-  await target.join(extra).remove({ recursive: true });
-}
+await target.join("three.js").remove();
+await target.join("three.d.ts").remove();
 for (const entry of walkSync(target.toString())) {
   if (entry.name.endsWith(".map")) {
     Deno.removeSync(entry.path);
@@ -46,6 +46,36 @@ for (const entry of walkSync(target.toString())) {
   } else if (entry.name.endsWith(".js")) {
     const code = Deno.readTextFileSync(entry.path);
     Deno.writeTextFileSync(entry.path, code.replace(/\n\/\/# sourceMappingURL=\S+\s*$/, "\n"));
+  }
+}
+// three/ goes too, except the .d.ts files the other types import (camera's store, map2d's tf and pose) and theirs
+const threeDir = target.join("three").resolve();
+const typesNeeded = new Set<string>();
+const toRead = [...walkSync(target.toString(), { exts: [".d.ts"] })]
+  .map((entry) => entry.path)
+  .filter((path) => !$.path(path).resolve().startsWith(threeDir));
+while (toRead.length > 0) {
+  const file = $.path(toRead.pop()!);
+  for (
+    const [, , path] of Deno.readTextFileSync(file.toString()).matchAll(
+      /(['"])(\.{1,2}\/[^'"]+?\.d\.ts)\1/g,
+    )
+  ) {
+    const imported = file.parentOrThrow().join(path).resolve().toString();
+    if (!typesNeeded.has(imported)) {
+      typesNeeded.add(imported);
+      toRead.push(imported);
+    }
+  }
+}
+for (const entry of [...walkSync(threeDir.toString(), { includeDirs: false })]) {
+  if (!typesNeeded.has($.path(entry.path).resolve().toString())) {
+    Deno.removeSync(entry.path);
+  }
+}
+for (const entry of [...walkSync(threeDir.toString(), { includeFiles: false })].reverse()) {
+  if ([...Deno.readDirSync(entry.path)].length === 0) {
+    Deno.removeSync(entry.path);
   }
 }
 await target.join("VERSION").writeText(`jeff-hykin/dimos-react ${tag} ${commit}\n`);
