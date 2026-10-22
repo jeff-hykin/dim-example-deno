@@ -1,5 +1,5 @@
 // Types for the dimos messages this page uses; DimApp decodes and encodes them with the dimos gateway's
-// GET /dimos-gateway/msgs.js.
+// GET /gateways/dimos/msgs.js.
 
 export interface Vector3 {
   x: number;

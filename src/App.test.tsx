@@ -12,7 +12,7 @@ import { AppProvider } from "./ui.ts";
 
 type Message = { key: string; kind: string; bytes: Uint8Array; timestamp: number; seq: number };
 
-/** A real DimApp over a fake zenoh-gateway client, with @dimos/msgs standing in for /dimos-gateway/msgs.js */
+/** A real DimApp over a fake zenoh-gateway client, with @dimos/msgs standing in for /gateways/dimos/msgs.js */
 function fakeDim() {
   const subscribers = new Map<string, (message: Message) => void>();
   const puts: Uint8Array[] = [];
@@ -36,7 +36,7 @@ function fakeDim() {
   };
   const discovery = { namespace: "ns", zenohGatewayUrl: "/zenoh-gateway" };
   const dim = new DimApp({
-    msgDecodeEndpoint: "../../dimos-gateway/msgs.js",
+    msgDecodeEndpoint: "../../gateways/dimos/msgs.js",
     msgs: msgsStandIn,
     href: "http://localhost/apps/dim-example-deno/",
     fetch: () => Promise.resolve(new Response(JSON.stringify(discovery))),
@@ -46,7 +46,7 @@ function fakeDim() {
 }
 
 const answers: Record<string, unknown> = {
-  "../../dimos-gateway/active": {
+  "../../gateways/dimos/active": {
     running: true,
     blueprint: "unitree-go2",
     launch: { blueprint: "unitree-go2", phase: "running" },

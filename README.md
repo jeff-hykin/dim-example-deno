@@ -91,7 +91,7 @@ const timer = setInterval(() => publisher.put(JSON.stringify(summary)).catch(() 
 
 ```ts
 if (route === "GET /api/hello") {
-  const { launch } = await desktop("GET", "/dimos-gateway/active").catch(() => ({ launch: null }));
+  const { launch } = await desktop("GET", "/gateways/dimos/active").catch(() => ({ launch: null }));
   return json({
     shape: "Deno",
     running: launch ? `${launch.blueprint} (${launch.phase})` : null,
@@ -150,7 +150,7 @@ an effect, which returns the unsubscribe.
 ```ts
 export function connectDimApp(): DimApp {
   return new DimApp({
-    msgDecodeEndpoint: "../../dimos-gateway/msgs.js",
+    msgDecodeEndpoint: "../../gateways/dimos/msgs.js",
     connectOptions: { heartbeatHz: 5, heartbeatMisses: 3 },
   });
 }
@@ -172,9 +172,10 @@ useEffect(() => {
 Every button, input, card, table and toast is a
 [dimos-react](https://github.com/jeff-hykin/dimos-react) component, vendored into
 `src/vendor/dimos-react/` (its tag and commit are in `src/vendor/dimos-react/VERSION`) so the build
-needs no network: `deno task vendor-dimos-react v0.2.0-beta5` re-vendors it at another tag (it
-builds the tag with deno: the library build, JS plus types). `AppProvider` follows Desktop's skin,
-corners and insets live, so the page looks like Desktop in every skin with no CSS of its own.
+needs no network: `deno task vendor-dimos-react v0.3.1` re-vendors it at another tag (it copies the
+tag's TypeScript source, only what `src/index.ts` reaches; Deno and Vite compile it as-is).
+`AppProvider` follows Desktop's skin, corners and insets live, so the page looks like Desktop in
+every skin with no CSS of its own.
 
 ```tsx
 // src/main.tsx
@@ -205,7 +206,7 @@ Desktop's zenoh-gateway refuses anything the page does on zenoh that `zenoh:` do
 own ACL config):
 
 ```yaml
-spec-version: v1.3
+spec-version: v1.4
 zenoh:
   default_permission: deny
   read:

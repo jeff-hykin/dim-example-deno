@@ -1,4 +1,4 @@
-// For the tests only: the gateway's /dimos-gateway/msgs.js isn't there offline, so @dimos/msgs (the same LCM wire format, a
+// For the tests only: the gateway's /gateways/dimos/msgs.js isn't there offline, so @dimos/msgs (the same LCM wire format, a
 // devDependency) stands in for the part of it this page uses; tests hand it to DimApp's `msgs` option.
 import { PoseStamped, Twist, Vector3 } from "@dimos/msgs/geometry_msgs";
 import type { MsgsModule, MsgType } from "./dim.ts";

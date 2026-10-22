@@ -1,13 +1,13 @@
 # the app's contract with Desktop: https://github.com/jeff-hykin/dimos-desktop-mirror/blob/main/docs/create-apps/index.md
 title: Example (Deno)
 version: "0.1.21"
-spec-version: v1.3
+spec-version: v1.4
 uses:
     "@dimos-gateway":
         - GET /active
         - GET /msgs.js
     "@desktop-gateway":
-        - POST /api/notifications
+        - POST /ui/notifications
     "@zenoh-gateway": ">=0.5 <0.6"
     dim-controller:
         - GET api/status

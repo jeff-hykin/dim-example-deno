@@ -13,11 +13,10 @@ export default defineConfig({
   server: {
     // `deno task dev` (:5173) next to `deno task serve` (:8787) and a running Desktop (:5555)
     proxy: {
-      "/api/notifications": desktop,
       "/api": "http://127.0.0.1:8787",
+      "/gateways": desktop,
       "/theme.css": desktop,
       "/shell": desktop,
-      "/dimos": desktop,
       "/apps": desktop,
       "/zenoh-gateway": { target: desktop, ws: true },
     },

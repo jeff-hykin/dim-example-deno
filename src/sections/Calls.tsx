@@ -3,7 +3,7 @@ import { json, postJson } from "../api.ts";
 import { Button, Row, useToast } from "../ui.ts";
 import { Output, Section, useLoad } from "./Section.tsx";
 
-/** GET /dimos-gateway/active: the running blueprint, and the gateway's last launch */
+/** GET /gateways/dimos/active: the running blueprint, and the gateway's last launch */
 interface Active {
   running: boolean;
   blueprint: string | null;
@@ -12,7 +12,7 @@ interface Active {
 
 export function Gateway() {
   const runs = useLoad(() =>
-    json<Active>("../../dimos-gateway/active").then(({ running, blueprint, launch }) =>
+    json<Active>("../../gateways/dimos/active").then(({ running, blueprint, launch }) =>
       running
         ? { blueprint, phase: launch?.phase ?? "running" }
         : launch
@@ -21,7 +21,7 @@ export function Gateway() {
     )
   );
   return (
-    <Section title="3 · Call the dimos gateway" note="`GET /dimos-gateway/active`: what's running">
+    <Section title="3 · Call the dimos gateway" note="`GET /gateways/dimos/active`: what's running">
       <Output value={runs} />
     </Section>
   );
@@ -42,9 +42,9 @@ export function OtherApp() {
 export function TalkToDesktop() {
   const toast = useToast();
   const notify = () =>
-    postJson("../../api/notifications", {
+    postJson("../../gateways/desktop/ui/notifications", {
       title: "Hello from the example app",
-      body: "POST /api/notifications",
+      body: "POST /gateways/desktop/ui/notifications",
       kind: "ok",
     }).catch((error: Error) => toast.error(error.message));
   // opening another app (or a built-in: launcher, appstore, settings) is a message to the shell around this page

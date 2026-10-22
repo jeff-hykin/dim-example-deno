@@ -1,6 +1,6 @@
-import { Lease, LeaseOptions, ZenohGateway } from './vendor/zenoh-gateway/zenoh_gateway.d.ts';
 // Hand-written types for the vendored zenoh.js (the parts dimos-react uses).
-export { checkTopic } from './topic.d.ts'
+export { checkTopic } from "./topic.js"
+import type { Lease, LeaseOptions, ZenohGateway } from "./vendor/zenoh-gateway/zenoh_gateway.js"
 
 export type { Lease, LeaseOptions }
 
@@ -16,7 +16,7 @@ export interface ZenohMessage {
     decoded?: unknown
 }
 
-/** The discovery answer from `GET /api/desktop/zenoh`. */
+/** The discovery answer from `GET /gateways/desktop/management/gateways/zenoh`. */
 export interface ZenohInfo {
     namespace: string
     desktop?: string

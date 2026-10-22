@@ -86,7 +86,7 @@ const json = (value: unknown, status = 200) =>
 async function api(request: Request, path: string): Promise<Response | null> {
   const route = `${request.method} ${path}`;
   if (route === "GET /api/hello") {
-    const { launch } = await desktop("GET", "/dimos-gateway/active").catch(() => ({
+    const { launch } = await desktop("GET", "/gateways/dimos/active").catch(() => ({
       launch: null,
     }));
     return json({
@@ -107,7 +107,7 @@ async function api(request: Request, path: string): Promise<Response | null> {
     if (route === "POST /api/notes") {
       // the agent added it: tell the person (a server's calls carry no Referer, so they're never refused, but
       // they're declared in dimos.yaml all the same: the contract is the whole app)
-      await desktop("POST", "/api/notifications", {
+      await desktop("POST", "/gateways/desktop/ui/notifications", {
         title: "A note from the agent",
         body: text,
         app: app.name,
