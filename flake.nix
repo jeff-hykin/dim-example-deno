@@ -10,10 +10,10 @@
             # After changing deno.json's imports or deno.lock: `deno task update-hashes` (this machine's system; the others
             # the same way on a machine of that system, or set it to "" and take the "got:" from CI's nix job).
             nodeModulesHash = {
-                aarch64-darwin = "sha256-J0KKYYKhyCaJGFoQ/O3H858aaT8Zf2GBloEG7Zso8VY=";
+                aarch64-darwin = "sha256-THEf99JilJ/GSmY6F0sPR2Xd7K6KepqKCmFIJtirO1w=";
                 x86_64-darwin = "sha256-2cu/Y/HkG7QkP16cscj+Z9XHQi1zl34KOuXW0MfWos4=";
-                x86_64-linux = "sha256-oHzuczKMq2F1Pfk7TQd9OK8qI54TjN9fPOCCaEkoLOw=";
-                aarch64-linux = "sha256-rqUU+FY7mX3j7FQmDp0AleYekbLcOOVrhJGN4uuZXBI=";
+                x86_64-linux = "sha256-R7t2etDzJIjAdzPLThMtUpFgQtCuye3FKFr7NnfLjnE=";
+                aarch64-linux = "sha256-a5HWgJBuvzPelwkkURy4BKjvIsUFXVm/uRswbEqpaig=";
             };
             denoEnv = "export HOME=$TMPDIR DENO_DIR=$TMPDIR/deno DENO_NO_UPDATE_CHECK=1 DENO_NO_PROMPT=1";
             # zenoh-deno from its release tarball: the module plus every platform's native library, loaded from beside
